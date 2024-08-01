@@ -7,6 +7,7 @@ import seaborn as sns
 from scipy.stats import norm
 from scipy.optimize import minimize
 from datetime import datetime
+import time
 
 def get_user_input():
     tickers_input = st.text_input("Introduce los tickers de las acciones (separados por comas):", "AAPL, MSFT, GOOGL")
@@ -29,19 +30,24 @@ def get_user_input():
             return None, None, None
     return None, None, None
 
-def download_data(tickers_with_market):
-    try:
-        data = yf.download(tickers_with_market, start='2020-01-01', end=datetime.today().strftime('%Y-%m-%d'))['Adj Close']
-    except Exception as e:
-        st.error(f"Error al descargar datos: {e}")
-        return None
-    return data
+def download_data(tickers_with_market, retries=3, delay=5):
+    for attempt in range(retries):
+        try:
+            data = yf.download(tickers_with_market, start='2020-01-01', end=datetime.today().strftime('%Y-%m-%d'))['Adj Close']
+            return data
+        except Exception as e:
+            if attempt < retries - 1:
+                st.warning(f"Intento {attempt + 1} fallido. Reintentando en {delay} segundos...")
+                time.sleep(delay)
+            else:
+                st.error(f"Error al descargar datos: {e}")
+                return None
 
 def filter_valid_tickers(data):
-    if data.empty:
+    if data is None or data.empty:
         st.error("No se descargaron datos para los tickers proporcionados.")
         return data, []
-
+    
     valid_tickers = [ticker for ticker in data.columns if not data[ticker].isnull().all()]
     if '^GSPC' not in valid_tickers:
         st.error("No se encontraron datos para el índice de mercado (^GSPC).")
@@ -123,12 +129,12 @@ def plot_portfolio_data(portfolio_return, portfolio_volatility, cumulative_retur
     fig, axes = plt.subplots(1, 2, figsize=(12, 6))
     
     axes[0].bar(["Rentabilidad Anualizada", "Volatilidad Anualizada"], [portfolio_return * 100, portfolio_volatility * 100], color=['blue', 'orange'])
-    axes[0].set_title("Rentabilidad y Volatilidad")
     axes[0].set_ylabel('Porcentaje')
+    axes[0].set_title("Rentabilidad y Volatilidad")
 
     sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', vmin=-1, vmax=1, fmt='.2f', ax=axes[1])
     axes[1].set_title("Matriz de Correlación")
-
+    plt.tight_layout()
     st.pyplot(fig)
 
     st.write(f"Rentabilidad Acumulada: {cumulative_return * 100:.2f}%")
@@ -174,10 +180,9 @@ def check_normality(returns):
     st.pyplot(fig)
 
 # Solicitar entrada del usuario
-st.title('Análisis de Carteras')
 tickers, weights, risk_free_rate = get_user_input()
 
-if tickers and weights is not None and risk_free_rate is not None:
+if tickers and weights and risk_free_rate:
     try:
         # Calcular métricas de la cartera inicial
         returns, portfolio_return, portfolio_volatility, cumulative_return, volatility, correlation_matrix, market_returns, portfolio_returns = calculate_portfolio_metrics(tickers, weights)

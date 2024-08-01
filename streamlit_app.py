@@ -105,4 +105,3 @@ elif selection == "Proyecciones":
             if earnings_per_share > 0:
                 pe_ratio = data['Close'].iloc[-1] / earnings_per_share
                 st.write(f"El P/E Ratio calculado es: {pe_ratio:.2f}")
-

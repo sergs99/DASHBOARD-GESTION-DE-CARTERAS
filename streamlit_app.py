@@ -1,6 +1,6 @@
 import streamlit as st
 import yfinance as yf
-import plotly.graph_objs as go
+import plotly.graph_objects as go
 import pandas as pd
 from datetime import datetime, timedelta
 import ta
@@ -49,18 +49,6 @@ def calculate_technical_indicators(hist):
 # Configuración de la página
 st.set_page_config(page_title="Dashboard Financiero", layout="wide")
 
-st.markdown("""
-    <style>
-    .main { background-color: #f4f4f4; }
-    .sidebar .sidebar-content { background-color: #2E3B4E; }
-    .sidebar .sidebar-content .element-container { color: white; }
-    .sidebar .sidebar-content .block-container { color: white; }
-    .sidebar .sidebar-content h1 { color: white; }
-    .streamlit-expanderHeader { color: #006400; }
-    </style>
-""", unsafe_allow_html=True)
-
-# Título de la Aplicación
 st.title('Dashboard Financiero')
 
 # Entradas de usuario

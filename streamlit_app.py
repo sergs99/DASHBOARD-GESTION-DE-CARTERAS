@@ -9,24 +9,25 @@ from scipy.optimize import minimize
 from datetime import datetime
 
 def get_user_input():
-    tickers = st.text_input("Introduce los tickers de las acciones (separados por comas):").split(',')
-    weights = st.text_input("Introduce los pesos de las acciones (separados por comas, deben sumar 1):").split(',')
+    tickers_input = st.text_input("Introduce los tickers de las acciones (separados por comas):", "AAPL,MSFT,GOOGL")
+    weights_input = st.text_input("Introduce los pesos de las acciones (separados por comas, deben sumar 1):", "0.4,0.3,0.3")
+    risk_free_rate_input = st.text_input("Introduce la tasa libre de riesgo actual (como fracción, ej. 0.0234 para 2.34%):", "0.0234")
     
-    if tickers and weights:
+    if tickers_input and weights_input and risk_free_rate_input:
         try:
-            tickers = [ticker.strip().upper() for ticker in tickers]
-            weights = np.array([float(weight.strip()) for weight in weights])
+            tickers = [ticker.strip().upper() for ticker in tickers_input.split(',')]
+            weights = np.array([float(weight.strip()) for weight in weights_input.split(',')])
 
             if not np.isclose(sum(weights), 1.0, atol=1e-5):
                 st.error("La suma de los pesos debe ser aproximadamente igual a 1.0.")
                 return None, None, None
 
-            risk_free_rate = float(st.text_input("Introduce la tasa libre de riesgo actual (como fracción, ej. 0.0234 para 2.34%):").strip())
+            risk_free_rate = float(risk_free_rate_input.strip())
 
             return tickers, weights, risk_free_rate
         
         except ValueError as e:
-            st.error(f"Error: {e}")
+            st.error(f"Error en los datos ingresados: {e}")
             return None, None, None
     return None, None, None
 
@@ -180,12 +181,14 @@ def check_normality(returns):
 # Solicitar entrada del usuario
 tickers, weights, risk_free_rate = get_user_input()
 
-if tickers and weights and risk_free_rate:
+if tickers and weights is not None and risk_free_rate is not None:
     try:
         # Calcular métricas de la cartera inicial
-        returns, portfolio_return, portfolio_volatility, cumulative_return, volatility, correlation_matrix, market_returns, portfolio_returns = calculate_portfolio_metrics(tickers, weights)
+        results = calculate_portfolio_metrics(tickers, weights)
+        
+        if results[0] is not None:
+            returns, portfolio_return, portfolio_volatility, cumulative_return, volatility, correlation_matrix, market_returns, portfolio_returns = results
 
-        if returns is not None:
             # Mostrar resultados de la cartera inicial
             plot_portfolio_data(portfolio_return, portfolio_volatility, cumulative_return, correlation_matrix)
 

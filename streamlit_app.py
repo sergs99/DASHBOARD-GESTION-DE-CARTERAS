@@ -26,7 +26,7 @@ def get_user_input():
             risk_free_rate = float(risk_free_rate_input.strip())
             return tickers, weights, risk_free_rate
         except ValueError as e:
-            st.error(f"Error: {e}")
+            st.error(f"Error al procesar las entradas: {e}")
             return None, None, None
     return None, None, None
 
@@ -181,6 +181,10 @@ def check_normality(returns):
 
 # Solicitar entrada del usuario
 tickers, weights, risk_free_rate = get_user_input()
+
+st.write(f"Tickers: {tickers}")
+st.write(f"Pesos: {weights}")
+st.write(f"Tasa libre de riesgo: {risk_free_rate}")
 
 if tickers and weights and risk_free_rate:
     try:

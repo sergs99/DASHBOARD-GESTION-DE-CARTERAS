@@ -34,13 +34,14 @@ def download_data(tickers_with_market, retries=3, delay=5):
     for attempt in range(retries):
         try:
             data = yf.download(tickers_with_market, start='2020-01-01', end=datetime.today().strftime('%Y-%m-%d'))['Adj Close']
+            if data.empty:
+                raise ValueError("Datos descargados están vacíos.")
             return data
         except Exception as e:
-            if attempt < retries - 1:
-                st.warning(f"Intento {attempt + 1} fallido. Reintentando en {delay} segundos...")
-                time.sleep(delay)
-            else:
-                st.error(f"Error al descargar datos: {e}")
+            st.warning(f"Intento {attempt + 1} fallido. Error: {e}. Reintentando en {delay} segundos...")
+            time.sleep(delay)
+            if attempt == retries - 1:
+                st.error(f"Error final al descargar datos: {e}")
                 return None
 
 def filter_valid_tickers(data):
@@ -158,6 +159,7 @@ def plot_cml_sml(portfolio_return, portfolio_volatility, market_returns, risk_fr
 
     ax.set_xlabel('Volatilidad')
     ax.set_ylabel('Retorno')
+    ax.set_title("Capital Market Line (CML) y Security Market Line (SML)")
     ax.legend()
     ax.grid(True)
     st.pyplot(fig)
@@ -185,9 +187,10 @@ tickers, weights, risk_free_rate = get_user_input()
 if tickers and weights is not None and risk_free_rate is not None:
     try:
         # Calcular métricas de la cartera inicial
-        returns, portfolio_return, portfolio_volatility, cumulative_return, volatility, correlation_matrix, market_returns, portfolio_returns = calculate_portfolio_metrics(tickers, weights)
+        results = calculate_portfolio_metrics(tickers, weights)
+        if results is not None:
+            returns, portfolio_return, portfolio_volatility, cumulative_return, volatility, correlation_matrix, market_returns, portfolio_returns = results
 
-        if returns is not None:
             # Mostrar resultados de la cartera inicial
             plot_portfolio_data(portfolio_return, portfolio_volatility, cumulative_return, correlation_matrix)
 

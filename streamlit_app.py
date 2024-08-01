@@ -10,9 +10,9 @@ from datetime import datetime
 import time
 
 def get_user_input():
-    tickers_input = st.text_input("Introduce los tickers de las acciones (separados por comas):", "AAPL, MSFT, GOOGL")
-    weights_input = st.text_input("Introduce los pesos de las acciones (separados por comas, deben sumar 1):", "0.4, 0.4, 0.2")
-    risk_free_rate_input = st.text_input("Introduce la tasa libre de riesgo actual (como fracción, ej. 0.0234 para 2.34%):", "0.0234")
+    tickers_input = st.text_input("Introduce los tickers de las acciones (separados por comas):", )
+    weights_input = st.text_input("Introduce los pesos de las acciones (separados por comas, deben sumar 1):", )
+    risk_free_rate_input = st.text_input("Introduce la tasa libre de riesgo actual (como fracción, ej. 0.0234 para 2.34%):", )
 
     if tickers_input and weights_input and risk_free_rate_input:
         try:

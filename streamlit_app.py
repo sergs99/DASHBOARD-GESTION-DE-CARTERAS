@@ -7,49 +7,26 @@ import seaborn as sns
 from scipy.stats import norm
 from scipy.optimize import minimize
 from datetime import datetime
+import time
+import logging
 
-def get_user_input():
-    st.sidebar.header("Configuración de la Cartera")
-    
-    tickers = st.sidebar.text_input("Introduce los tickers de las acciones (separados por comas):").split(',')
-    weights_input = st.sidebar.text_input("Introduce los pesos de las acciones (separados por comas, deben sumar 1):").split(',')
-    
-    tickers = [ticker.strip().upper() for ticker in tickers]
+# Configura el registro
+logging.basicConfig(level=logging.INFO)
 
-    # Validar y convertir pesos
-    weights = []
-    for weight in weights_input:
+def download_data(tickers_with_market, retries=3, delay=5):
+    for attempt in range(retries):
         try:
-            w = float(weight.strip())
-            if w < 0:
-                st.error("Los pesos deben ser números positivos.")
-                return None, None, None
-            weights.append(w)
-        except ValueError:
-            st.error(f"Peso inválido: {weight.strip()}")
-            return None, None, None
-    
-    weights = np.array(weights)
-
-    if not np.isclose(sum(weights), 1.0, atol=1e-5):
-        st.error("La suma de los pesos debe ser aproximadamente igual a 1.0.")
-        return None, None, None
-
-    try:
-        risk_free_rate = float(st.sidebar.text_input("Introduce la tasa libre de riesgo actual (como fracción, ej. 0.0234 para 2.34%):").strip())
-    except ValueError:
-        st.error("Tasa libre de riesgo inválida.")
-        return None, None, None
-
-    return tickers, weights, risk_free_rate
-
-def download_data(tickers_with_market):
-    try:
-        data = yf.download(tickers_with_market, start='2020-01-01', end=datetime.today().strftime('%Y-%m-%d'))['Adj Close']
-    except Exception as e:
-        st.error(f"Error al descargar datos: {e}")
-        return None
-    return data
+            logging.info(f"Descargando datos para los tickers: {tickers_with_market}")
+            data = yf.download(tickers_with_market, start='2020-01-01', end=datetime.today().strftime('%Y-%m-%d'))['Adj Close']
+            logging.info("Datos descargados correctamente.")
+            return data
+        except Exception as e:
+            st.warning(f"Error al descargar datos (intento {attempt + 1}): {e}")
+            if attempt < retries - 1:
+                time.sleep(delay)
+            else:
+                st.error(f"Error al descargar datos después de {retries} intentos: {e}")
+                return None
 
 def filter_valid_tickers(data):
     if data.empty:

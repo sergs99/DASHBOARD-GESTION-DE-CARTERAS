@@ -182,11 +182,7 @@ def check_normality(returns):
 # Solicitar entrada del usuario
 tickers, weights, risk_free_rate = get_user_input()
 
-st.write(f"Tickers: {tickers}")
-st.write(f"Pesos: {weights}")
-st.write(f"Tasa libre de riesgo: {risk_free_rate}")
-
-if tickers and weights and risk_free_rate:
+if tickers and weights is not None and risk_free_rate is not None:
     try:
         # Calcular métricas de la cartera inicial
         returns, portfolio_return, portfolio_volatility, cumulative_return, volatility, correlation_matrix, market_returns, portfolio_returns = calculate_portfolio_metrics(tickers, weights)
@@ -244,3 +240,5 @@ if tickers and weights and risk_free_rate:
 
     except ValueError as e:
         st.error(f"Error en el procesamiento: {e}")
+else:
+    st.warning("Por favor, completa todos los campos antes de procesar los datos.")

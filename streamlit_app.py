@@ -395,8 +395,6 @@ if menu == "Acciones":
                     # Realizar análisis de sensibilidad
                     sensitivity_analysis(stock_ticker, market_ticker, start_date, end_date)
 
-if __name__ == "__main__":
-    main()
 
 # Si la opción seleccionada es "Gestión de Carteras"
 elif menu == "Gestión de Carteras":

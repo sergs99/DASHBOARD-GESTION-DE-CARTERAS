@@ -413,40 +413,50 @@ if submenu_acciones == "Riesgo":
     market_ticker = st.text_input("Símbolo del Mercado:", value='^GSPC')
 
     if st.button('Calcular'):
-        try:
-            hist, _ = get_stock_data(ticker, start_date, end_date)
-            hist['Returns'] = hist['Close'].pct_change().dropna()
-            market_hist, _ = get_stock_data(market_ticker, start_date, end_date)
-            market_hist['Returns'] = market_hist['Close'].pct_change().dropna()
+    try:
+        hist, _ = get_stock_data(ticker, start_date, end_date)
+        if hist is None:
+            st.error("No se pudieron obtener datos para el símbolo bursátil.")
+            return
+        
+        hist['Returns'] = hist['Close'].pct_change().dropna()
+        
+        market_hist, _ = get_stock_data(market_ticker, start_date, end_date)
+        if market_hist is None:
+            st.error("No se pudieron obtener datos para el símbolo del mercado.")
+            return
+        
+        market_hist['Returns'] = market_hist['Close'].pct_change().dropna()
 
-            var = calculate_var(hist['Returns'])
-            cvar = calculate_cvar(hist['Returns'])
-            volatility = calculate_volatility(hist['Returns'])
-            drawdown = calculate_drawdown(hist['Returns'])
-            beta = calculate_beta(hist['Returns'], market_hist['Returns'])
-            sharpe_ratio = calculate_sharpe_ratio(hist['Returns'])
-            sortino_ratio = calculate_sortino_ratio(hist['Returns'])
-            variance = calculate_variance(hist['Returns'])
-            kurtosis = calculate_kurtosis(hist['Returns'])
-            skewness = calculate_skewness(hist['Returns'])
+        # Calcular métricas
+        var = calculate_var(hist['Returns'])
+        cvar = calculate_cvar(hist['Returns'])
+        volatility = calculate_volatility(hist['Returns'])
+        drawdown = calculate_drawdown(hist['Returns'])
+        beta = calculate_beta(hist['Returns'], market_hist['Returns'])
+        sharpe_ratio = calculate_sharpe_ratio(hist['Returns'])
+        sortino_ratio = calculate_sortino_ratio(hist['Returns'])
+        variance = calculate_variance(hist['Returns'])
+        kurtosis = calculate_kurtosis(hist['Returns'])
+        skewness = calculate_skewness(hist['Returns'])
 
-            st.write(f"Valor en Riesgo (VaR): {var:.2%}")
-            st.write(f"Valor en Riesgo Condicional (CVaR): {cvar:.2%}")
-            st.write(f"Volatilidad: {volatility:.2%}")
-            st.write(f"Drawdown Máximo: {drawdown.min():.2%}")
-            st.write(f"Beta: {beta:.2f}")
-            st.write(f"Ratio Sharpe: {sharpe_ratio:.2f}")
-            st.write(f"Ratio Sortino: {sortino_ratio:.2f}")
-            st.write(f"Varianza: {variance:.2%}")
-            st.write(f"Kurtosis: {kurtosis:.2f}")
-            st.write(f"Sesgo: {skewness:.2f}")
+        st.write(f"Valor en Riesgo (VaR): {var:.2%}")
+        st.write(f"Valor en Riesgo Condicional (CVaR): {cvar:.2%}")
+        st.write(f"Volatilidad: {volatility:.2%}")
+        st.write(f"Drawdown Máximo: {drawdown.min():.2%}")
+        st.write(f"Beta: {beta:.2f}")
+        st.write(f"Ratio Sharpe: {sharpe_ratio:.2f}")
+        st.write(f"Ratio Sortino: {sortino_ratio:.2f}")
+        st.write(f"Varianza: {variance:.2%}")
+        st.write(f"Kurtosis: {kurtosis:.2f}")
+        st.write(f"Sesgo: {skewness:.2f}")
 
-            st.line_chart(drawdown, use_container_width=True)
+        st.line_chart(drawdown, use_container_width=True)
 
-            plot_metrics(hist['Returns'], market_hist['Returns'])
+        plot_metrics(hist['Returns'], market_hist['Returns'])
 
-        except Exception as e:
-            st.error(f"Ocurrió un error: {e}")
+    except Exception as e:
+        st.error(f"Ocurrió un error: {e}")
 
 
 # Si la opción seleccionada es "Gestión de Carteras"

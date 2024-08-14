@@ -408,13 +408,14 @@ if submenu_acciones == "Riesgo":
     end_date = st.date_input('Fecha de fin', datetime.today().date())
     
     if st.button('Calcular'):
-        try:
-            stock_data, _ = get_stock_data(stock_ticker, start_date, end_date)
-            market_data, _ = get_stock_data(market_ticker, start_date, end_date)
-            
-            if stock_data is None or market_data is None:
-                st.error("No se pudieron obtener datos para uno o ambos símbolos bursátiles.")
-                return
+    try:
+        stock_data, _ = get_stock_data(stock_ticker, start_date, end_date)
+        market_data, _ = get_stock_data(market_ticker, start_date, end_date)
+        
+        # Verificar si se obtuvieron datos para ambos símbolos
+        if stock_data is None or market_data is None:
+            st.error("No se pudieron obtener datos para uno o ambos símbolos bursátiles.")
+            return
             
             stock_data['Returns'] = stock_data['Close'].pct_change().dropna()
             market_data['Returns'] = market_data['Close'].pct_change().dropna()

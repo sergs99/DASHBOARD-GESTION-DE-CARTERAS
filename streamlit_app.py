@@ -404,20 +404,23 @@ if submenu_acciones == "Riesgo":
     
     # Inputs de usuario
     stock_ticker = st.text_input("Símbolo bursátil:", value='AAPL')
-    market_ticker = '^GSPC'
+    market_ticker = st.text_input("Símbolo del mercado:", value='^GSPC')
     start_date = st.date_input('Fecha de inicio', (datetime.today() - timedelta(days=252)).date())
     end_date = st.date_input('Fecha de fin', datetime.today().date())
     
     if st.button('Calcular'):
         try:
             # Obtener datos de acciones y del mercado
-            stock_data, _ = get_stock_data(stock_ticker, start_date, end_date)
-            market_data, _ = get_stock_data(market_ticker, start_date, end_date)
+            stock_data_tuple = get_stock_data(stock_ticker, start_date, end_date)
+            market_data_tuple = get_stock_data(market_ticker, start_date, end_date)
             
             # Verificar si se obtuvieron datos para ambos símbolos
-            if stock_data is None or market_data is None:
+            if stock_data_tuple is None or market_data_tuple is None:
                 st.error("No se pudieron obtener datos para uno o ambos símbolos bursátiles.")
             else:
+                stock_data, _ = stock_data_tuple
+                market_data, _ = market_data_tuple
+
                 # Calcular retornos
                 stock_data['Returns'] = stock_data['Close'].pct_change().dropna()
                 market_data['Returns'] = market_data['Close'].pct_change().dropna()

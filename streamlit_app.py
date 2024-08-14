@@ -92,23 +92,6 @@ def calculate_financial_ratios(ticker):
             "Beta": beta
         }
     }
-
-# Configuración de la barra lateral
-st.sidebar.title("Menú Principal")
-menu = st.sidebar.selectbox("Selecciona una opción", ["Acciones", "Gestión de Carteras"])
-
-if menu == "Acciones":
-    st.title("Análisis de Acciones")
-    submenu_acciones = st.sidebar.selectbox("Selecciona un análisis", ["Análisis Técnico", "Análisis Fundamental", "Riesgo"])
-
-    if submenu_acciones == "Análisis Técnico":
-        st.subheader("Análisis Técnico")
-        # Agrega aquí tu código para el análisis técnico
-        st.write("Aquí puedes agregar el código para el análisis técnico.")
-
-    elif submenu_acciones == "Análisis Fundamental":
-        st.subheader("Análisis Fundamental")
-        
         # Obtener el ticker del usuario
         ticker = st.text_input("Introduce el ticker de la acción (por ejemplo, 'AAPL'):", value='AAPL')
 

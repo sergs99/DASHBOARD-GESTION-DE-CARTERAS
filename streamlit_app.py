@@ -413,7 +413,6 @@ if submenu_acciones == "Riesgo":
     market_ticker = st.text_input("Símbolo del Mercado:", value='^GSPC')
 
     if st.button('Calcular'):
-    try:
         hist, _ = get_stock_data(ticker, start_date, end_date)
         if hist is None:
             st.error("No se pudieron obtener datos para el símbolo bursátil.")

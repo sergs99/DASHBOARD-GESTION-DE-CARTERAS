@@ -351,49 +351,54 @@ if menu == "Acciones":
         except Exception as e:
             st.error(f"Ocurrió un error: {e}")
 
-  if submenu_acciones == "Riesgo":
+ if submenu_acciones == "Riesgo":
     st.subheader("Análisis de Riesgo")
-    
+
     # Entradas de usuario
-    stock_ticker = st.text_input("Símbolo bursátil:", value='AAPL')
-    market_ticker = '^GSPC'  # Índice de referencia (S&P 500 en este caso)
+    ticker = st.text_input("Símbolo bursátil:", value='AAPL')
     start_date = st.date_input('Fecha de inicio', (datetime.today() - timedelta(days=252)).date())
     end_date = st.date_input('Fecha de fin', datetime.today().date())
-    
-    if st.button('Calcular'):
-        stock_data = get_stock_data(stock_ticker, start_date, end_date)
-        market_data = get_stock_data(market_ticker, start_date, end_date)
+    market_ticker = st.text_input("Símbolo del Mercado:", value='^GSPC')
+
+    try:
+        # Obtener datos históricos
+        hist = get_stock_data(ticker, start_date, end_date)
+        hist = calculate_returns(hist)
+        market_hist = get_stock_data(market_ticker, start_date, end_date)
+        market_returns = calculate_returns(market_hist)['Returns']
+
+        # Calcular métricas de riesgo
+        var = calculate_var(hist['Returns'])
+        cvar = calculate_cvar(hist['Returns'])
+        volatility = calculate_volatility(hist['Returns'])
+        drawdown = calculate_drawdown(hist['Returns'])
+        beta = calculate_beta(hist['Returns'], market_returns)
+        sharpe_ratio = calculate_sharpe_ratio(hist['Returns'])
+        sortino_ratio = calculate_sortino_ratio(hist['Returns'])
+        variance = calculate_variance(hist['Returns'])
+        kurtosis = calculate_kurtosis(hist['Returns'])
+        skewness = calculate_skewness(hist['Returns'])
+
+        # Mostrar métricas de riesgo
+        st.write(f"Valor en Riesgo (VaR): {var:.2%}")
+        st.write(f"Valor en Riesgo Condicional (CVaR): {cvar:.2%}")
+        st.write(f"Volatilidad: {volatility:.2%}")
+        st.write(f"Drawdown Máximo: {drawdown.min():.2%}")
+        st.write(f"Beta: {beta:.2f}")
+        st.write(f"Ratio Sharpe: {sharpe_ratio:.2f}")
+        st.write(f"Ratio Sortino: {sortino_ratio:.2f}")
+        st.write(f"Varianza: {variance:.2%}")
+        st.write(f"Kurtosis: {kurtosis:.2f}")
+        st.write(f"Sesgo: {skewness:.2f}")
+
+        # Gráfico de Drawdown
+        st.line_chart(drawdown, use_container_width=True)
         
-        if stock_data.empty or market_data.empty:
-            st.error("No data available for the given tickers and date range.")
-        else:
-            returns = stock_data['Returns'].dropna()
-            market_returns = market_data['Returns'].dropna()
-            
-            # Calcular métricas
-            metrics = {
-                "Value at Risk (VaR)": calculate_var(returns),
-                "Conditional Value at Risk (CVaR)": calculate_cvar(returns),
-                "Volatility": calculate_volatility(returns),
-                "Drawdown": calculate_drawdown(returns),
-                "Beta": calculate_beta(returns, market_returns),
-                "Sharpe Ratio": calculate_sharpe_ratio(returns),
-                "Sortino Ratio": calculate_sortino_ratio(returns),
-                "Variance": calculate_variance(returns),
-                "Kurtosis": calculate_kurtosis(returns),
-                "Skewness": calculate_skewness(returns)
-            }
-            
-            # Mostrar métricas
-            st.write(f"Métricas para {stock_ticker}:")
-            for metric, value in metrics.items():
-                st.write(f"{metric}: {value}")
-            
-            # Visualizar métricas
-            plot_metrics(returns, market_returns)
-            
-            # Realizar análisis de sensibilidad
-            sensitivity_analysis(stock_ticker, market_ticker, start_date, end_date)
+        # Gráfico de Retornos
+        plot_metrics(hist['Returns'], market_returns)
+
+    except Exception as e:
+        st.error(f"Ocurrió un error: {e}")
 
 # Si la opción seleccionada es "Gestión de Carteras"
 elif menu == "Gestión de Carteras":

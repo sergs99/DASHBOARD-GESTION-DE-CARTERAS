@@ -192,18 +192,18 @@ if menu == "Acciones":
             )
             st.plotly_chart(rsi_fig)
 
-            # Oscilador Estocástico
+            # Stochastic Oscillator
             stoch_fig = go.Figure()
             stoch_fig.add_trace(go.Scatter(x=data.index, y=data['Stoch_K'], mode='lines', name='%K', line=dict(color='blue')))
             stoch_fig.add_trace(go.Scatter(x=data.index, y=data['Stoch_D'], mode='lines', name='%D', line=dict(color='red')))
-            stoch_fig.add_hline(y=80, line=dict(color='grey', dash='dash'), name='Sobrecompra (80)')
-            stoch_fig.add_hline(y=20, line=dict(color='grey', dash='dash'), name='Sobreventa (20)')
+            stoch_fig.add_hline(y=80, line=dict(color='red', dash='dash'), name='Sobrecompra (80)')
+            stoch_fig.add_hline(y=20, line=dict(color='green', dash='dash'), name='Sobreventa (20)')
             stoch_fig.update_layout(
-                title=f'Oscilador Estocástico de {ticker}',
+                title=f'Indicador Estocástico de {ticker}',
                 title_font=dict(size=18, color='white'),
                 xaxis_title='Fecha',
                 xaxis_title_font=dict(size=14, color='white'),
-                yaxis_title='Oscilador',
+                yaxis_title='Estocástico',
                 yaxis_title_font=dict(size=14, color='white'),
                 plot_bgcolor='black',
                 paper_bgcolor='black',
@@ -212,51 +212,128 @@ if menu == "Acciones":
                 yaxis=dict(gridcolor='grey', zerolinecolor='grey')
             )
             st.plotly_chart(stoch_fig)
-            
+
+            # ADX
+            adx_fig = go.Figure()
+            adx_fig.add_trace(go.Scatter(x=data.index, y=data['ADX'], mode='lines', name='ADX', line=dict(color='blue')))
+            adx_fig.add_trace(go.Scatter(x=data.index, y=data['ADX_Pos'], mode='lines', name='+DI', line=dict(color='green')))
+            adx_fig.add_trace(go.Scatter(x=data.index, y=data['ADX_Neg'], mode='lines', name='–DI', line=dict(color='red')))
+            adx_fig.update_layout(
+                title=f'ADX de {ticker}',
+                title_font=dict(size=18, color='white'),
+                xaxis_title='Fecha',
+                xaxis_title_font=dict(size=14, color='white'),
+                yaxis_title='ADX',
+                yaxis_title_font=dict(size=14, color='white'),
+                plot_bgcolor='black',
+                paper_bgcolor='black',
+                font=dict(color='white'),
+                xaxis=dict(gridcolor='grey', zerolinecolor='grey'),
+                yaxis=dict(gridcolor='grey', zerolinecolor='grey')
+            )
+            st.plotly_chart(adx_fig)
+
+            # CCI
+            cci_fig = go.Figure()
+            cci_fig.add_trace(go.Scatter(x=data.index, y=data['CCI'], mode='lines', name='CCI', line=dict(color='blue')))
+            cci_fig.add_hline(y=100, line=dict(color='red', dash='dash'), name='Sobrecompra (100)')
+            cci_fig.add_hline(y=-100, line=dict(color='green', dash='dash'), name='Sobreventa (-100)')
+            cci_fig.update_layout(
+                title=f'CCI de {ticker}',
+                title_font=dict(size=18, color='white'),
+                xaxis_title='Fecha',
+                xaxis_title_font=dict(size=14, color='white'),
+                yaxis_title='CCI',
+                yaxis_title_font=dict(size=14, color='white'),
+                plot_bgcolor='black',
+                paper_bgcolor='black',
+                font=dict(color='white'),
+                xaxis=dict(gridcolor='grey', zerolinecolor='grey'),
+                yaxis=dict(gridcolor='grey', zerolinecolor='grey')
+            )
+            st.plotly_chart(cci_fig)
+
+            # OBV
+            obv_fig = go.Figure()
+            obv_fig.add_trace(go.Scatter(x=data.index, y=data['OBV'], mode='lines', name='OBV', line=dict(color='blue')))
+            obv_fig.update_layout(
+                title=f'OBV de {ticker}',
+                title_font=dict(size=18, color='white'),
+                xaxis_title='Fecha',
+                xaxis_title_font=dict(size=14, color='white'),
+                yaxis_title='OBV',
+                yaxis_title_font=dict(size=14, color='white'),
+                plot_bgcolor='black',
+                paper_bgcolor='black',
+                font=dict(color='white'),
+                xaxis=dict(gridcolor='grey', zerolinecolor='grey'),
+                yaxis=dict(gridcolor='grey', zerolinecolor='grey')
+            )
+            st.plotly_chart(obv_fig)
+
+            # VWAP
+            vwap_fig = go.Figure()
+            vwap_fig.add_trace(go.Scatter(x=data.index, y=data['VWAP'], mode='lines', name='VWAP', line=dict(color='blue')))
+            vwap_fig.update_layout(
+                title=f'VWAP de {ticker}',
+                title_font=dict(size=18, color='white'),
+                xaxis_title='Fecha',
+                xaxis_title_font=dict(size=14, color='white'),
+                yaxis_title='VWAP',
+                yaxis_title_font=dict(size=14, color='white'),
+                plot_bgcolor='black',
+                paper_bgcolor='black',
+                font=dict(color='white'),
+                xaxis=dict(gridcolor='grey', zerolinecolor='grey'),
+                yaxis=dict(gridcolor='grey', zerolinecolor='grey')
+            )
+            st.plotly_chart(vwap_fig)
+
         except Exception as e:
             st.error(f"Ocurrió un error: {e}")
 
     elif submenu_acciones == "Análisis Fundamental":
         st.subheader("Análisis Fundamental")
-        # Información financiera organizada
-            fundamental_data = {
-                'Nombre': info.get('shortName', 'N/A'),
-                'Sector': info.get('sector', 'N/A'),
-                'Industria': info.get('industry', 'N/A'),
-                'Precio Actual': f"${info.get('currentPrice', 'N/A'):.2f}" if 'currentPrice' in info else 'N/A',
-                'Ratios de Valoración': {
-                    'Price Earnings Ratio': info.get('trailingPE', 'N/A'),
-                    'Dividend Yield': f"{info.get('dividendYield', 'N/A')*100:.2f}%" if info.get('dividendYield') else 'N/A',
-                    'Price to Book Value': info.get('priceToBook', 'N/A'),
-                    'PEG Ratio (5yr expected)': info.get('pegRatio', 'N/A'),
-                    'Price to Cash Flow Ratio': info.get('priceToCashflow', 'N/A'),
-                    'EV/EBITDA': info.get('enterpriseToEbitda', 'N/A')
-                },
-                'Ratios de Rentabilidad': {
-                    'Return on Equity': f"{info.get('returnOnEquity', 'N/A')*100:.2f}%" if info.get('returnOnEquity') else 'N/A',
-                    'Return on Assets': f"{info.get('returnOnAssets', 'N/A')*100:.2f}%" if info.get('returnOnAssets') else 'N/A',
-                    'Profit Margin': f"{info.get('profitMargins', 'N/A')*100:.2f}%" if info.get('profitMargins') else 'N/A',
-                    'Operating Margin (ttm)': f"{info.get('operatingMargins', 'N/A')*100:.2f}%" if info.get('operatingMargins') else 'N/A',
-                    'Payout Ratio': f"{info.get('payoutRatio', 'N/A')*100:.2f}%" if info.get('payoutRatio') else 'N/A'
-                },
-                'Ratios de Liquidez y Solvencia': {
-                    'Current Ratio (mrq)': info.get('currentRatio', 'N/A'),
-                    'Total Debt/Equity (mrq)': info.get('debtToEquity', 'N/A')
-                },
-                'Otras Métricas': {
-                    'Volumen Actual': f"{info.get('volume', 'N/A'):,}" if 'volume' in info else 'N/A',
-                    'Earnings Per Share (EPS)': info.get('trailingEps', 'N/A'),
-                    'Capitalización de Mercado': f"${info.get('marketCap', 'N/A') / 1e9:.2f} B" if info.get('marketCap') else 'N/A',
-                    'Beta': info.get('beta', 'N/A')
-                }
-            }
 
-            for category, metrics in fundamental_data.items():
-                st.write(f"**{category}:**")
-                if isinstance(metrics, dict):
-                    st.write(pd.DataFrame(list(metrics.items()), columns=['Métrica', 'Valor']).set_index('Métrica'))
-                else:
-                    st.write(metrics)
+        # Información financiera organizada
+        fundamental_data = {
+            'Nombre': info.get('shortName', 'N/A'),
+            'Sector': info.get('sector', 'N/A'),
+            'Industria': info.get('industry', 'N/A'),
+            'Precio Actual': f"${info.get('currentPrice', 'N/A'):.2f}" if 'currentPrice' in info else 'N/A',
+            'Ratios de Valoración': {
+                'Price Earnings Ratio': info.get('trailingPE', 'N/A'),
+                'Dividend Yield': f"{info.get('dividendYield', 'N/A')*100:.2f}%" if info.get('dividendYield') else 'N/A',
+                'Price to Book Value': info.get('priceToBook', 'N/A'),
+                'PEG Ratio (5yr expected)': info.get('pegRatio', 'N/A'),
+                'Price to Cash Flow Ratio': info.get('priceToCashflow', 'N/A'),
+                'EV/EBITDA': info.get('enterpriseToEbitda', 'N/A')
+            },
+            'Ratios de Rentabilidad': {
+                'Return on Equity': f"{info.get('returnOnEquity', 'N/A')*100:.2f}%" if info.get('returnOnEquity') else 'N/A',
+                'Return on Assets': f"{info.get('returnOnAssets', 'N/A')*100:.2f}%" if info.get('returnOnAssets') else 'N/A',
+                'Profit Margin': f"{info.get('profitMargins', 'N/A')*100:.2f}%" if info.get('profitMargins') else 'N/A',
+                'Operating Margin (ttm)': f"{info.get('operatingMargins', 'N/A')*100:.2f}%" if info.get('operatingMargins') else 'N/A',
+                'Payout Ratio': f"{info.get('payoutRatio', 'N/A')*100:.2f}%" if info.get('payoutRatio') else 'N/A'
+            },
+            'Ratios de Liquidez y Solvencia': {
+                'Current Ratio (mrq)': info.get('currentRatio', 'N/A'),
+                'Total Debt/Equity (mrq)': info.get('debtToEquity', 'N/A')
+            },
+            'Otras Métricas': {
+                'Volumen Actual': f"{info.get('volume', 'N/A'):,}" if 'volume' in info else 'N/A',
+                'Earnings Per Share (EPS)': info.get('trailingEps', 'N/A'),
+                'Capitalización de Mercado': f"${info.get('marketCap', 'N/A') / 1e9:.2f} B" if info.get('marketCap') else 'N/A',
+                'Beta': info.get('beta', 'N/A')
+            }
+        }
+
+        for category, metrics in fundamental_data.items():
+            st.write(f"**{category}:**")
+            if isinstance(metrics, dict):
+                st.write(pd.DataFrame(list(metrics.items()), columns=['Métrica', 'Valor']).set_index('Métrica'))
+            else:
+                st.write(metrics)
 
 
     elif submenu_acciones == "Riesgo":

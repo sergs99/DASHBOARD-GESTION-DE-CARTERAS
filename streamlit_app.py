@@ -26,8 +26,8 @@ if menu == "Acciones":
         # Agrega aquí tu código para el análisis técnico
         st.write("Aquí puedes agregar el código para el análisis técnico.")
         
-   elif submenu_acciones == "Análisis Fundamental":
-    st.subheader("Análisis Fundamental")
+    if submenu_acciones == "Análisis Fundamental":
+        st.subheader("Análisis Fundamental")
     
     # Obtener el ticker del usuario
     ticker = st.text_input("Introduce el ticker de la acción (por ejemplo, 'AAPL'):", value='AAPL')

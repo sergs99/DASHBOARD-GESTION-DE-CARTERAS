@@ -351,6 +351,59 @@ if menu == "Acciones":
         except Exception as e:
             st.error(f"Ocurrió un error: {e}")
 
+import numpy as np
+import pandas as pd
+import streamlit as st
+from datetime import datetime, timedelta
+
+# Definiciones de funciones de cálculo
+def calculate_var(returns, confidence_level=0.95):
+    return np.percentile(returns, (1 - confidence_level) * 100)
+
+def calculate_cvar(returns, confidence_level=0.95):
+    var = calculate_var(returns, confidence_level)
+    return returns[returns <= var].mean()
+
+def calculate_volatility(returns):
+    return returns.std()
+
+def calculate_drawdown(returns):
+    cumulative_returns = (1 + returns).cumprod()
+    peak = cumulative_returns.cummax()
+    drawdown = (cumulative_returns - peak) / peak
+    return drawdown
+
+def calculate_beta(returns, market_returns):
+    covariance_matrix = np.cov(returns, market_returns)
+    return covariance_matrix[0, 1] / covariance_matrix[1, 1]
+
+def calculate_sharpe_ratio(returns, risk_free_rate=0.0):
+    excess_returns = returns - risk_free_rate
+    return excess_returns.mean() / excess_returns.std()
+
+def calculate_sortino_ratio(returns, target_return=0.0):
+    negative_returns = returns[returns < target_return]
+    downside_deviation = negative_returns.std()
+    return (returns.mean() - target_return) / downside_deviation
+
+def calculate_variance(returns):
+    return returns.var()
+
+def calculate_kurtosis(returns):
+    return returns.kurtosis()
+
+def calculate_skewness(returns):
+    return returns.skew()
+
+# Suponiendo que 'get_stock_data' es una función definida en otra parte de tu código
+def get_stock_data(ticker, start_date, end_date):
+    # Implementa aquí la lógica para obtener datos de acciones.
+    pass
+
+def plot_metrics(returns, market_returns):
+    # Implementa aquí la lógica para visualizar métricas.
+    pass
+
 if submenu_acciones == "Riesgo":
     st.subheader("Análisis de Riesgo")
 
@@ -392,7 +445,9 @@ if submenu_acciones == "Riesgo":
 
             plot_metrics(hist['Returns'], market_hist['Returns'])
 
-        except Exce
+        except Exception as e:
+            st.error(f"Ocurrió un error: {e}")
+
 
 # Si la opción seleccionada es "Gestión de Carteras"
 elif menu == "Gestión de Carteras":

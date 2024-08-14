@@ -409,12 +409,19 @@ if submenu_acciones == "Riesgo":
     end_date = st.date_input('Fecha de fin', datetime.today().date())
     
    
-if st.button('Probar Datos'):
-    stock_data, _ = get_stock_data(stock_ticker, start_date, end_date)
-    if stock_data is not None:
-        st.write(stock_data.head())
-    else:
-        st.error("No se pudieron obtener datos.")
+if st.button('Calcular'):
+    try:
+        stock_data, _ = get_stock_data(stock_ticker, start_date, end_date)
+        if stock_data is None:
+            st.error("No se pudieron obtener datos para el símbolo bursátil proporcionado.")
+        else:
+            # Continúa con el procesamiento de los datos
+            st.write(stock_data.head())
+    except TypeError as te:
+        st.error(f"Error de tipo: {te}")
+    except Exception as e:
+        st.error(f"Ocurrió un error inesperado: {e}")
+
 
 
 # Si la opción seleccionada es "Gestión de Carteras"

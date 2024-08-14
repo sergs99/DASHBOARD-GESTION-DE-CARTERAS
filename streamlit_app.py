@@ -213,18 +213,18 @@ if menu == "Acciones":
             )
             st.plotly_chart(stoch_fig)
 
-    elif submenu_acciones == "Análisis Fundamental":
+    if submenu_acciones == "Análisis Fundamental":
         st.subheader("Análisis Fundamental")
         # Aquí puedes agregar el análisis fundamental y el resto de la implementación.
         pass
 
-    elif submenu_acciones == "Riesgo":
+    if submenu_acciones == "Riesgo":
         st.subheader("Análisis de Riesgo")
         # Aquí puedes agregar el análisis de riesgo y el resto de la implementación.
         pass
 
 # Si la opción seleccionada es "Gestión de Carteras"
-elif menu == "Gestión de Carteras":
+if menu == "Gestión de Carteras":
     st.subheader("Gestión de Carteras")
     # Aquí puedes agregar la funcionalidad para la gestión de carteras.
     pass

@@ -5,6 +5,7 @@ import numpy as np
 import scipy.stats as stats
 import matplotlib.pyplot as plt
 import seaborn as sns
+import plotly.graph_objs as go
 from datetime import datetime, timedelta
 
 # Configuración básica de la aplicación

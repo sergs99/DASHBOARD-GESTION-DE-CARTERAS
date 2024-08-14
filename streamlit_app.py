@@ -294,7 +294,12 @@ if menu == "Acciones":
 
     if submenu_acciones == "Análisis Fundamental":
         st.subheader("Análisis Fundamental")
+ # Entradas de usuario
+        ticker = st.text_input("Símbolo bursátil:", value='AAPL')
+        start_date = st.date_input('Fecha de inicio', (datetime.today() - timedelta(days=252)).date())
+        end_date = st.date_input('Fecha de fin', datetime.today().date())
 
+    
         try:
             # Asegúrate de que info se obtiene correctamente
             hist, info = get_stock_data(ticker, start_date, end_date)

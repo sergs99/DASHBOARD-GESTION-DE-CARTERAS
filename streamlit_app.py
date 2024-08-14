@@ -292,7 +292,7 @@ if menu == "Acciones":
         except Exception as e:
             st.error(f"Ocurrió un error: {e}")
 
-     elif submenu_acciones == "Análisis Fundamental":
+    if submenu_acciones == "Análisis Fundamental":
         st.subheader("Análisis Fundamental")
 
         try:

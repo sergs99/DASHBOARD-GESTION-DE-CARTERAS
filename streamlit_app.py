@@ -192,7 +192,7 @@ if menu == "Acciones":
             )
             st.plotly_chart(rsi_fig)
 
-            # Stochastic Oscillator
+            # Oscilador Estocástico
             stoch_fig = go.Figure()
             stoch_fig.add_trace(go.Scatter(x=data.index, y=data['Stoch_K'], mode='lines', name='%K', line=dict(color='blue')))
             stoch_fig.add_trace(go.Scatter(x=data.index, y=data['Stoch_D'], mode='lines', name='%D', line=dict(color='red')))
@@ -212,19 +212,22 @@ if menu == "Acciones":
                 yaxis=dict(gridcolor='grey', zerolinecolor='grey')
             )
             st.plotly_chart(stoch_fig)
+            
+        except Exception as e:
+            st.error(f"Ocurrió un error: {e}")
 
-    if submenu_acciones == "Análisis Fundamental":
+    elif submenu_acciones == "Análisis Fundamental":
         st.subheader("Análisis Fundamental")
         # Aquí puedes agregar el análisis fundamental y el resto de la implementación.
         pass
 
-    if submenu_acciones == "Riesgo":
+    elif submenu_acciones == "Riesgo":
         st.subheader("Análisis de Riesgo")
         # Aquí puedes agregar el análisis de riesgo y el resto de la implementación.
         pass
 
 # Si la opción seleccionada es "Gestión de Carteras"
-if menu == "Gestión de Carteras":
+elif menu == "Gestión de Carteras":
     st.subheader("Gestión de Carteras")
     # Aquí puedes agregar la funcionalidad para la gestión de carteras.
     pass

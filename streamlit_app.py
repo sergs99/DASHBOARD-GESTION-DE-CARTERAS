@@ -1,8 +1,10 @@
 import streamlit as st
 import yfinance as yf
 import pandas as pd
-import plotly.graph_objects as go
-import ta
+import numpy as np
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+import seaborn as sns
 from datetime import datetime, timedelta
 
 # Configuración básica de la aplicación
@@ -350,9 +352,51 @@ if menu == "Acciones":
             st.error(f"Ocurrió un error: {e}")
 
     elif submenu_acciones == "Riesgo":
-        st.subheader("Análisis de Riesgo")
-        # Aquí puedes agregar el análisis de riesgo y el resto de la implementación.
-        pass
+            st.subheader("Análisis de Riesgo")
+            
+            # Entradas de usuario
+            stock_ticker = st.text_input("Símbolo bursátil:", value='AAPL')
+            market_ticker = '^GSPC'  # Índice de referencia (S&P 500 en este caso)
+            start_date = st.date_input('Fecha de inicio', (datetime.today() - timedelta(days=252)).date())
+            end_date = st.date_input('Fecha de fin', datetime.today().date())
+            
+            if st.button('Calcular'):
+                stock_data = get_stock_data(stock_ticker, start_date, end_date)
+                market_data = get_stock_data(market_ticker, start_date, end_date)
+                
+                if stock_data.empty or market_data.empty:
+                    st.error("No data available for the given tickers and date range.")
+                else:
+                    returns = stock_data['Returns'].dropna()
+                    market_returns = market_data['Returns'].dropna()
+                    
+                    # Calcular métricas
+                    metrics = {
+                        "Value at Risk (VaR)": calculate_var(returns),
+                        "Conditional Value at Risk (CVaR)": calculate_cvar(returns),
+                        "Volatility": calculate_volatility(returns),
+                        "Drawdown": calculate_drawdown(returns),
+                        "Beta": calculate_beta(returns, market_returns),
+                        "Sharpe Ratio": calculate_sharpe_ratio(returns),
+                        "Sortino Ratio": calculate_sortino_ratio(returns),
+                        "Variance": calculate_variance(returns),
+                        "Kurtosis": calculate_kurtosis(returns),
+                        "Skewness": calculate_skewness(returns)
+                    }
+                    
+                    # Mostrar métricas
+                    st.write(f"Métricas para {stock_ticker}:")
+                    for metric, value in metrics.items():
+                        st.write(f"{metric}: {value}")
+                    
+                    # Visualizar métricas
+                    plot_metrics(returns, market_returns)
+                    
+                    # Realizar análisis de sensibilidad
+                    sensitivity_analysis(stock_ticker, market_ticker, start_date, end_date)
+
+if __name__ == "__main__":
+    main()
 
 # Si la opción seleccionada es "Gestión de Carteras"
 elif menu == "Gestión de Carteras":

@@ -406,56 +406,53 @@ def plot_metrics(returns, market_returns):
 
 if submenu_acciones == "Riesgo":
     st.subheader("Análisis de Riesgo")
-
-    ticker = st.text_input("Símbolo bursátil:", value='AAPL')
+    
+    stock_ticker = st.text_input("Símbolo bursátil:", value='AAPL')
+    market_ticker = '^GSPC'
     start_date = st.date_input('Fecha de inicio', (datetime.today() - timedelta(days=252)).date())
     end_date = st.date_input('Fecha de fin', datetime.today().date())
-    market_ticker = st.text_input("Símbolo del Mercado:", value='^GSPC')
-
+    
     if st.button('Calcular'):
-        hist, _ = get_stock_data(ticker, start_date, end_date)
-        if hist is None:
-            st.error("No se pudieron obtener datos para el símbolo bursátil.")
-            return
-        
-        hist['Returns'] = hist['Close'].pct_change().dropna()
-        
-        market_hist, _ = get_stock_data(market_ticker, start_date, end_date)
-        if market_hist is None:
-            st.error("No se pudieron obtener datos para el símbolo del mercado.")
-            return
-        
-        market_hist['Returns'] = market_hist['Close'].pct_change().dropna()
+        try:
+            stock_data, _ = get_stock_data(stock_ticker, start_date, end_date)
+            market_data, _ = get_stock_data(market_ticker, start_date, end_date)
+            
+            if stock_data is None or market_data is None:
+                st.error("No se pudieron obtener datos para uno o ambos símbolos bursátiles.")
+                return
+            
+            stock_data['Returns'] = stock_data['Close'].pct_change().dropna()
+            market_data['Returns'] = market_data['Close'].pct_change().dropna()
+            
+            var = calculate_var(stock_data['Returns'])
+            cvar = calculate_cvar(stock_data['Returns'])
+            volatility = calculate_volatility(stock_data['Returns'])
+            drawdown = calculate_drawdown(stock_data['Returns'])
+            beta = calculate_beta(stock_data['Returns'], market_data['Returns'])
+            sharpe_ratio = calculate_sharpe_ratio(stock_data['Returns'])
+            sortino_ratio = calculate_sortino_ratio(stock_data['Returns'])
+            variance = calculate_variance(stock_data['Returns'])
+            kurtosis = calculate_kurtosis(stock_data['Returns'])
+            skewness = calculate_skewness(stock_data['Returns'])
+            
+            st.write(f"Valor en Riesgo (VaR): {var:.2%}")
+            st.write(f"Valor en Riesgo Condicional (CVaR): {cvar:.2%}")
+            st.write(f"Volatilidad: {volatility:.2%}")
+            st.write(f"Drawdown Máximo: {drawdown.min():.2%}")
+            st.write(f"Beta: {beta:.2f}")
+            st.write(f"Ratio Sharpe: {sharpe_ratio:.2f}")
+            st.write(f"Ratio Sortino: {sortino_ratio:.2f}")
+            st.write(f"Varianza: {variance:.2%}")
+            st.write(f"Kurtosis: {kurtosis:.2f}")
+            st.write(f"Sesgo: {skewness:.2f}")
 
-        # Calcular métricas
-        var = calculate_var(hist['Returns'])
-        cvar = calculate_cvar(hist['Returns'])
-        volatility = calculate_volatility(hist['Returns'])
-        drawdown = calculate_drawdown(hist['Returns'])
-        beta = calculate_beta(hist['Returns'], market_hist['Returns'])
-        sharpe_ratio = calculate_sharpe_ratio(hist['Returns'])
-        sortino_ratio = calculate_sortino_ratio(hist['Returns'])
-        variance = calculate_variance(hist['Returns'])
-        kurtosis = calculate_kurtosis(hist['Returns'])
-        skewness = calculate_skewness(hist['Returns'])
+            st.line_chart(drawdown, use_container_width=True)
 
-        st.write(f"Valor en Riesgo (VaR): {var:.2%}")
-        st.write(f"Valor en Riesgo Condicional (CVaR): {cvar:.2%}")
-        st.write(f"Volatilidad: {volatility:.2%}")
-        st.write(f"Drawdown Máximo: {drawdown.min():.2%}")
-        st.write(f"Beta: {beta:.2f}")
-        st.write(f"Ratio Sharpe: {sharpe_ratio:.2f}")
-        st.write(f"Ratio Sortino: {sortino_ratio:.2f}")
-        st.write(f"Varianza: {variance:.2%}")
-        st.write(f"Kurtosis: {kurtosis:.2f}")
-        st.write(f"Sesgo: {skewness:.2f}")
+            plot_metrics(stock_data['Returns'], market_data['Returns'])
 
-        st.line_chart(drawdown, use_container_width=True)
+        except Exception as e:
+            st.error(f"Ocurrió un error: {e}")
 
-        plot_metrics(hist['Returns'], market_hist['Returns'])
-
-    except Exception as e:
-        st.error(f"Ocurrió un error: {e}")
 
 
 # Si la opción seleccionada es "Gestión de Carteras"

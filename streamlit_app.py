@@ -351,7 +351,7 @@ if menu == "Acciones":
         except Exception as e:
             st.error(f"Ocurrió un error: {e}")
 
- if submenu_acciones == "Riesgo":
+ while submenu_acciones == "Riesgo":
     st.subheader("Análisis de Riesgo")
 
     # Entradas de usuario

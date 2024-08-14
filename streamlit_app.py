@@ -419,8 +419,7 @@ if submenu_acciones == "Riesgo":
             
             if stock_data is None or market_data is None:
                 st.error("No se pudieron obtener datos para uno o ambos símbolos bursátiles.")
-                return
-            
+                st.stop()  # Detiene la ejecución aquí si no hay datos
             stock_data['Returns'] = stock_data['Close'].pct_change().dropna()
             market_data['Returns'] = market_data['Close'].pct_change().dropna()
             
@@ -452,8 +451,6 @@ if submenu_acciones == "Riesgo":
 
         except Exception as e:
             st.error(f"Ocurrió un error: {e}")
-
-
 
 # Si la opción seleccionada es "Gestión de Carteras"
 elif menu == "Gestión de Carteras":

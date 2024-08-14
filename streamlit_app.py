@@ -351,11 +351,6 @@ if menu == "Acciones":
         except Exception as e:
             st.error(f"Ocurrió un error: {e}")
 
-import numpy as np
-import pandas as pd
-import streamlit as st
-from datetime import datetime, timedelta
-
 # Definiciones de funciones de cálculo
 def calculate_var(returns, confidence_level=0.95):
     return np.percentile(returns, (1 - confidence_level) * 100)

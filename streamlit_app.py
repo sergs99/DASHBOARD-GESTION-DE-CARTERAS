@@ -428,6 +428,11 @@ if submenu_acciones == "Riesgo":
                 stock_data, _ = stock_data_tuple
                 market_data, _ = market_data_tuple
 
+                # Verificar si los datos realmente contienen información
+                if stock_data.empty or market_data.empty:
+                    st.error("No se obtuvieron datos en el rango de fechas especificado.")
+                    return
+
                 # Calcular retornos
                 stock_data['Returns'] = stock_data['Close'].pct_change().dropna()
                 market_data['Returns'] = market_data['Close'].pct_change().dropna()
@@ -462,8 +467,6 @@ if submenu_acciones == "Riesgo":
         
         except Exception as e:
             st.error(f"Ocurrió un error: {e}")
-
-
 
 
 # Si la opción seleccionada es "Gestión de Carteras"

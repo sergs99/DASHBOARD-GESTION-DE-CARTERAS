@@ -476,12 +476,11 @@ def handle_portfolio_management():
 
 
 
-
     
 
-elif portfolio_option == "Análisis de cartera":
-            st.subheader("Análisis de Cartera")
-            st.write("Por favor, ingresa los datos necesarios para el análisis de cartera.")
+      if submenu == "Análisis de Cartera":
+        st.subheader("Análisis de Cartera")
+        
             
             try:
                 # Solicitar tickers, pesos y benchmark al usuario

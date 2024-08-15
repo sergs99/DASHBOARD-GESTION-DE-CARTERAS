@@ -37,7 +37,7 @@ def get_stock_data(ticker, start_date, end_date):
     info = stock.info
     return hist, info
     
-   if submenu_acciones == "Análisis Técnico":
+elif submenu_acciones == "Análisis Técnico":
         st.subheader("Análisis Técnico")
         
         # Entradas de usuario

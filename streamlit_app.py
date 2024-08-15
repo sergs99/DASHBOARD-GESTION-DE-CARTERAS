@@ -22,7 +22,12 @@ def get_stock_data(ticker, start_date, end_date):
     hist = stock.history(start=start_date, end=end_date)
     info = stock.info
     return hist, info
-
+# Submenú en la categoría "Acciones"
+if menu == "Acciones":
+    submenu_acciones = st.sidebar.selectbox(
+        "Seleccione un análisis para acciones",
+        ("Análisis Técnico", "Análisis Fundamental", "Riesgo")
+    )
 
 
     

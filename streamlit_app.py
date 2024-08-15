@@ -352,7 +352,7 @@ if submenu_acciones == "Análisis Fundamental":
         except Exception as e:
             st.error(f"Ocurrió un error: {e}")
 
-    elif submenu_acciones == "Riesgo":
+    if submenu_acciones == "Riesgo":
         st.subheader("Análisis de Riesgo")
         # Aquí puedes agregar el análisis de riesgo y el resto de la implementación.
         pass

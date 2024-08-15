@@ -15,11 +15,6 @@ st.set_page_config(page_title="Análisis Financiero", layout="wide")
 # Título de la aplicación
 st.title("Herramientas de Análisis Financiero")
 
-# Menú principal
-menu = st.sidebar.selectbox(
-    "Seleccione una categoría",
-    ("Acciones", "Gestión de Carteras")
-)
 
 # Función para obtener datos de la acción
 def get_stock_data(ticker, start_date, end_date):
@@ -28,11 +23,7 @@ def get_stock_data(ticker, start_date, end_date):
     info = stock.info
     return hist, info
 
-# Submenú en la categoría "Acciones"
-if menu == "Acciones":
-    submenu_acciones = st.sidebar.selectbox(
-        "Seleccione un análisis para acciones",
-        ("Análisis Técnico", "Análisis Fundamental", "Riesgo")
+
     )
     
     if submenu_acciones == "Análisis Técnico":

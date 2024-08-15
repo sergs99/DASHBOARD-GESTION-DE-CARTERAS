@@ -568,7 +568,8 @@ plt.figure(figsize=(12, 6))
 sns.heatmap(log_returns.corr(), annot=True, linewidths=1, cmap='coolwarm')
 plt.title("Matriz de Correlación")
 plt.show()
-
+except Exception as e:
+            st.error(f"Ocurrió un error: {e}")
 
     elif portfolio_option == "Optimización de cartera":
         st.subheader("Optimización de Cartera")

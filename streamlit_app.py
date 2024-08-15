@@ -369,5 +369,4 @@ if menu == "Acciones":
             st.subheader("Análisis de Cartera")
             st.write("Aquí va el contenido para el análisis de carteras.")
 
-if __name__ == "__main__":
-    main()
+

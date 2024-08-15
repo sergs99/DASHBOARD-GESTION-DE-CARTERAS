@@ -353,36 +353,21 @@ if menu == "Acciones":
         except Exception as e:
             st.error(f"Ocurrió un error: {e}")
 
+elif submenu_acciones == "Riesgo":
+        st.subheader("Análisis de Riesgo")
+        st.write("Esta sección está en desarrollo.")
 
-
-if submenu_acciones == "Riesgo":
-    st.subheader("Análisis de Riesgo")
-    pass
-
-
-
-# Si la opción seleccionada es "Gestión de Carteras"
-if menu == "Gestión de Carteras":
-    st.subheader("Gestión de Carteras")
-    
-    # Desplegable para seleccionar opciones dentro de "Gestión de Carteras"
-    submenu_gestion = st.selectbox(
-        "Selecciona un análisis de cartera:",
+# Submenú en la categoría "Gestión de Carteras"
+elif menu == "Gestión de Carteras":
+    submenu_carteras = st.sidebar.selectbox(
+        "Seleccione un análisis de cartera",
         ("Análisis de la Cartera", "Pesos Óptimos")
     )
-    
-    if submenu_gestion == "Análisis de la Cartera":
+
+    if submenu_carteras == "Análisis de la Cartera":
         st.subheader("Análisis de la Cartera")
-        
-        # Código para el análisis de la cartera
-        # Aquí puedes agregar los elementos necesarios para el análisis de la cartera
-        
-        st.write("Aquí se realizará el análisis de la cartera. Puedes incluir gráficos y análisis de datos.")
-        
-    elif submenu_gestion == "Pesos Óptimos":
+        st.write("Aquí puedes incluir gráficos y análisis relacionados con la gestión de tu cartera.")
+
+    elif submenu_carteras == "Pesos Óptimos":
         st.subheader("Pesos Óptimos")
-        
-        # Código para la optimización de pesos
-        # Aquí puedes agregar los elementos necesarios para calcular y mostrar los pesos óptimos
-        
-        st.write("Aquí se calcularán y mostrarán los pesos óptimos de la cartera. Puedes incluir gráficos y cálculos.")
+        st.write("Aquí puedes calcular y mostrar los pesos óptimos de tu cartera.")

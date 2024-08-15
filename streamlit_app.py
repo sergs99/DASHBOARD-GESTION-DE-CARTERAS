@@ -1,8 +1,12 @@
 import streamlit as st
 import yfinance as yf
 import pandas as pd
-import plotly.graph_objects as go
+import numpy as np
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+import seaborn as sns
 import ta
+import plotly.graph_objs as go
 from datetime import datetime, timedelta
 
 # Configuración básica de la aplicación

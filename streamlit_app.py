@@ -357,18 +357,18 @@ if menu == "Acciones":
         st.subheader("Análisis de Riesgo")
         # Aquí puedes agregar el análisis de riesgo y el resto de la implementación.
         pass
-    
- # Si la opción seleccionada es "Gestión de Carteras"
-elif menu == "Gestión de Carteras":
-    st.subheader("Gestión de Carteras")
-    portfolio_option = st.sidebar.selectbox(
-        "Selecciona una opción de gestión de carteras",
-        ["Análisis de cartera", "Optimización de cartera"]
-    )
-    
-    if portfolio_option == "Análisis de cartera":
-        st.subheader("Análisis de Cartera")
-        # Función para validar los pesos
+
+
+
+
+
+
+
+
+
+
+
+# Función para validar los pesos
 def validate_weights(weights, num_assets):
     if abs(sum(weights) - 1) > 0.001:
         raise ValueError("Los pesos no suman 1.")
@@ -476,103 +476,112 @@ def stress_test(log_returns, weights):
         'Stressed CVaR': stressed_portfolio_returns[stressed_portfolio_returns <= np.percentile(stressed_portfolio_returns, 5)].mean()
     }
 
-# Solicitar tickers, pesos y benchmark al usuario
-tickers_input = input("Ingresa los tickers de las acciones, separados por comas: ").strip()
-tickers = [ticker.strip().upper() for ticker in tickers_input.split(',')]
+ # Si la opción seleccionada es "Gestión de Carteras"
+elif menu == "Gestión de Carteras":
+    st.subheader("Gestión de Carteras")
+    portfolio_option = st.sidebar.selectbox(
+        "Selecciona una opción de gestión de carteras",
+        ["Análisis de cartera", "Optimización de cartera"]
+    )
+    
+    if portfolio_option == "Análisis de cartera":
+            st.subheader("Análisis de Cartera")
+            st.write("Por favor, ingresa los datos necesarios para el análisis de cartera.")
+            
+            try:
+                # Solicitar tickers, pesos y benchmark al usuario
+                tickers_input = st.text_input("Ingresa los tickers de las acciones, separados por comas:")
+                tickers = [ticker.strip().upper() for ticker in tickers_input.split(',')]
+                
+                weights_input = st.text_input("Ingresa los pesos correspondientes (deben sumar 1), separados por comas:")
+                weights = [float(weight) for weight in weights_input.split(',')]
+                
+                benchmark_ticker = st.text_input("Ingresa el ticker del benchmark (por ejemplo, ^GSPC):").strip().upper()
+                
+                # Verifica el número de tickers y pesos
+                if len(weights) != len(tickers):
+                    st.error(f"El número de pesos ({len(weights)}) debe coincidir con el número de tickers ({len(tickers)}).")
+                else:
+                    weights = validate_weights(weights, len(tickers))
 
-weights_input = input("Ingresa los pesos correspondientes (deben sumar 1), separados por comas: ").split(',')
-weights = [float(weight) for weight in weights_input]
+                    # Descargar datos históricos
+                    data = download_data(tickers, benchmark_ticker)
 
-# Verifica el número de tickers y pesos
-print(f"Cantidad de tickers: {len(tickers)}")
-print(f"Cantidad de pesos: {len(weights)}")
+                    # Calcular rendimientos logarítmicos solo para los tickers de las acciones
+                    log_returns = calculate_log_returns(data[tickers])
 
-# Verifica si el número de pesos coincide con el número de tickers
-if len(weights) != len(tickers):
-    raise ValueError(f"El número de pesos ({len(weights)}) debe coincidir con el número de tickers ({len(tickers)}).")
+                    # Obtener los rendimientos del benchmark
+                    benchmark_returns = np.log(1 + data[benchmark_ticker].pct_change()).dropna()
 
-weights = validate_weights(weights, len(tickers))
+                    # Alinear las fechas del benchmark con los datos del portafolio
+                    common_dates = log_returns.index.intersection(benchmark_returns.index)
+                    log_returns = log_returns.loc[common_dates]
+                    benchmark_returns = benchmark_returns.loc[common_dates]
 
-benchmark_ticker = input("Ingresa el ticker del benchmark (por ejemplo, ^GSPC): ").strip().upper()
+                    # Convertir pesos a un array numpy
+                    weights = np.array(weights)
 
-# Descargar datos históricos
-data = download_data(tickers, benchmark_ticker)
+                    # Calcular estadísticas del portafolio
+                    portfolio_returns = np.dot(log_returns, weights)
+                    optimal_stats = portfolio_stats(weights, log_returns)
+                    optimal_risk_measures = portfolio_risk_measures(weights, log_returns)
+                    sortino = sortino_ratio(portfolio_returns)
+                    mad = mean_absolute_deviation(portfolio_returns)
+                    max_dd = max_drawdown(portfolio_returns)
+                    calmar = calmar_ratio(portfolio_returns)
+                    treynor = treynor_ratio(weights, log_returns, benchmark_returns)
+                    info_ratio = information_ratio(portfolio_returns, benchmark_returns)
+                    alpha = jensen_alpha(weights, log_returns, benchmark_returns)
+                    omega = omega_ratio(portfolio_returns)
+                    stressed_risk = stress_test(log_returns, weights)
 
-# Calcular rendimientos logarítmicos solo para los tickers de las acciones
-log_returns = calculate_log_returns(data[tickers])
+                    # Resultados
+                    st.write("Retorno óptimo de la cartera: ", round(optimal_stats['Return'] * 100, 4))
+                    st.write("Volatilidad óptima de la cartera: ", round(optimal_stats['Volatility'] * 100, 4))
+                    st.write("Ratio Sharpe óptimo de la cartera: ", round(optimal_stats['Sharpe'], 4))
+                    st.write("VaR (5%): ", round(optimal_risk_measures['VaR'] * 100, 4))
+                    st.write("CVaR (5%): ", round(optimal_risk_measures['CVaR'] * 100, 4))
+                    st.write("Ratio de Sortino: ", round(sortino, 4))
+                    st.write("Desviación Media: ", round(mad * 100, 4))
+                    st.write("Drawdown Máximo: ", round(max_dd, 4))
+                    st.write("Ratio de Calmar: ", round(calmar, 4))
+                    st.write("Ratio de Treynor: ", round(treynor, 4))
+                    st.write("Ratio de Información: ", round(info_ratio, 4))
+                    st.write("Alpha de Jensen: ", round(alpha, 4))
+                    st.write("Ratio de Omega: ", round(omega, 4))
+                    st.write("VaR (5%) en escenario estresado: ", round(stressed_risk['Stressed VaR'] * 100, 4))
+                    st.write("CVaR (5%) en escenario estresado: ", round(stressed_risk['Stressed CVaR'] * 100, 4))
 
-# Obtener los rendimientos del benchmark
-benchmark_returns = np.log(1 + data[benchmark_ticker].pct_change()).dropna()
+                    # Graficar la evolución de los precios
+                    st.subheader("Evolución de Precios Normalizados")
+                    fig, ax = plt.subplots(figsize=(12, 6))
+                    (data / data.iloc[0] * 100).plot(ax=ax)
+                    ax.set_xlabel('Fecha')
+                    ax.set_ylabel('Precio Normalizado')
+                    ax.set_title('Evolución de Precios Normalizados')
+                    st.pyplot(fig)
 
-# Alinear las fechas del benchmark con los datos del portafolio
-common_dates = log_returns.index.intersection(benchmark_returns.index)
-log_returns = log_returns.loc[common_dates]
-benchmark_returns = benchmark_returns.loc[common_dates]
+                    # Histograma de retornos
+                    st.subheader("Distribución de Retornos Diarios")
+                    fig, ax = plt.subplots(figsize=(12, 6))
+                    ax.hist(portfolio_returns, bins=50, alpha=0.75, label='Retornos logarítmicos')
+                    ax.set_xlabel('Retornos logarítmicos diarios')
+                    ax.set_ylabel('Frecuencia')
+                    ax.set_title('Distribución de Retornos Diarios')
+                    ax.legend()
+                    st.pyplot(fig)
 
-# Convertir pesos a un array numpy
-weights = np.array(weights)
+                    # Heatmap de la matriz de correlación
+                    st.subheader("Matriz de Correlación")
+                    fig, ax = plt.subplots(figsize=(12, 6))
+                    sns.heatmap(log_returns.corr(), annot=True, linewidths=1, cmap='coolwarm', ax=ax)
+                    ax.set_title("Matriz de Correlación")
+                    st.pyplot(fig)
 
-# Verificar dimensiones
-print(f"Dimensiones de log_returns: {log_returns.shape}")
-print(f"Dimensiones de weights: {weights.shape}")
+            except Exception as e:
+                st.error(f"Ocurrió un error: {e}")
 
-# Calcular estadísticas del portafolio
-portfolio_returns = np.dot(log_returns, weights)
-optimal_stats = portfolio_stats(weights, log_returns)
-optimal_risk_measures = portfolio_risk_measures(weights, log_returns)
-sortino = sortino_ratio(portfolio_returns)
-mad = mean_absolute_deviation(portfolio_returns)
-max_dd = max_drawdown(portfolio_returns)
-calmar = calmar_ratio(portfolio_returns)
-treynor = treynor_ratio(weights, log_returns, benchmark_returns)
-info_ratio = information_ratio(portfolio_returns, benchmark_returns)
-alpha = jensen_alpha(weights, log_returns, benchmark_returns)
-omega = omega_ratio(portfolio_returns)
-stressed_risk = stress_test(log_returns, weights)
-
-# Resultados
-print("Retorno óptimo de la cartera: ", round(optimal_stats['Return'] * 100, 4))
-print("Volatilidad óptima de la cartera: ", round(optimal_stats['Volatility'] * 100, 4))
-print("Ratio Sharpe óptimo de la cartera: ", round(optimal_stats['Sharpe'], 4))
-print("VaR (5%): ", round(optimal_risk_measures['VaR'] * 100, 4))
-print("CVaR (5%): ", round(optimal_risk_measures['CVaR'] * 100, 4))
-print("Ratio de Sortino: ", round(sortino, 4))
-print("Desviación Media: ", round(mad * 100, 4))
-print("Drawdown Máximo: ", round(max_dd, 4))
-print("Ratio de Calmar: ", round(calmar, 4))
-print("Ratio de Treynor: ", round(treynor, 4))
-print("Ratio de Información: ", round(info_ratio, 4))
-print("Alpha de Jensen: ", round(alpha, 4))
-print("Ratio de Omega: ", round(omega, 4))
-print("VaR (5%) en escenario estresado: ", round(stressed_risk['Stressed VaR'] * 100, 4))
-print("CVaR (5%) en escenario estresado: ", round(stressed_risk['Stressed CVaR'] * 100, 4))
-
-# Graficar la evolución de los precios
-(data / data.iloc[0] * 100).plot(figsize=(12, 6))
-plt.xlabel('Fecha')
-plt.ylabel('Precio Normalizado')
-plt.title('Evolución de Precios Normalizados')
-plt.show()
-
-# Histograma de retornos
-plt.figure(figsize=(12, 6))
-plt.hist(portfolio_returns, bins=50, alpha=0.75, label='Retornos logarítmicos')
-plt.xlabel('Retornos logarítmicos diarios')
-plt.ylabel('Frecuencia')
-plt.title('Distribución de Retornos Diarios')
-plt.legend()
-plt.show()
-
-# Heatmap de la matriz de correlación
-plt.figure(figsize=(12, 6))
-sns.heatmap(log_returns.corr(), annot=True, linewidths=1, cmap='coolwarm')
-plt.title("Matriz de Correlación")
-plt.show()
-except Exception as e:
-            st.error(f"Ocurrió un error: {e}")
-
-    elif portfolio_option == "Optimización de cartera":
-        st.subheader("Optimización de Cartera")
-        st.write("Aquí va el contenido para la optimización de cartera.")
-        # Agrega tu código y widgets aquí
-
+        elif portfolio_option == "Optimización de cartera":
+            st.subheader("Optimización de Cartera")
+            st.write("Aquí va el contenido para la optimización de cartera.")
+            # Agrega tu código y widgets aquí

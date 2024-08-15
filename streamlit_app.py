@@ -367,7 +367,6 @@ if menu == "Acciones":
 
 
 
-
 # Función para validar los pesos
 def validate_weights(weights, num_assets):
     if abs(sum(weights) - 1) > 0.001:
@@ -476,15 +475,24 @@ def stress_test(log_returns, weights):
         'Stressed CVaR': stressed_portfolio_returns[stressed_portfolio_returns <= np.percentile(stressed_portfolio_returns, 5)].mean()
     }
 
- # Si la opción seleccionada es "Gestión de Carteras"
-if menu == "Gestión de Carteras":
-    st.subheader("Gestión de Carteras")
-    portfolio_option = st.sidebar.selectbox(
-        "Selecciona una opción de gestión de carteras",
-        ["Análisis de cartera", "Optimización de cartera"]
+# Aplicación Streamlit
+def app():
+    st.title("Aplicación de Análisis Financiero")
+    
+    # Menú desplegable
+    menu = st.sidebar.selectbox(
+        "Selecciona una sección",
+        ["Análisis de acciones", "Gestión de carteras"]
     )
     
-    if portfolio_option == "Análisis de cartera":
+    if menu == "Gestión de carteras":
+        st.subheader("Gestión de Carteras")
+        portfolio_option = st.sidebar.selectbox(
+            "Selecciona una opción de gestión de carteras",
+            ["Análisis de cartera", "Optimización de cartera"]
+        )
+        
+        if portfolio_option == "Análisis de cartera":
             st.subheader("Análisis de Cartera")
             st.write("Por favor, ingresa los datos necesarios para el análisis de cartera.")
             
@@ -582,6 +590,9 @@ if menu == "Gestión de Carteras":
                 st.error(f"Ocurrió un error: {e}")
 
         elif portfolio_option == "Optimización de cartera":
-        st.subheader("Optimización de Cartera")
-        st.write("Aquí va el contenido para la optimización de cartera.")
-        # Agrega tu código y widgets aquí
+            st.subheader("Optimización de Cartera")
+            st.write("Aquí va el contenido para la optimización de cartera.")
+            # Agrega tu código y widgets aquí
+
+if __name__ == "__main__":
+    app()

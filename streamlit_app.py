@@ -479,7 +479,7 @@ def handle_portfolio_management():
 
     
 
- if portfolio_option == "Análisis de cartera":
+elif portfolio_option == "Análisis de cartera":
             st.subheader("Análisis de Cartera")
             st.write("Por favor, ingresa los datos necesarios para el análisis de cartera.")
             

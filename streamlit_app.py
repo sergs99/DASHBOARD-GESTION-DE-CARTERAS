@@ -359,7 +359,6 @@ def handle_stock_analysis():
 
 
 
-
 # Función para validar los pesos
 def validate_weights(weights, num_assets):
     if abs(sum(weights) - 1) > 0.001:
@@ -468,24 +467,19 @@ def stress_test(log_returns, weights):
         'Stressed CVaR': stressed_portfolio_returns[stressed_portfolio_returns <= np.percentile(stressed_portfolio_returns, 5)].mean()
     }
 
-# Aplicación Streamlit
-def app():
-    st.title("Aplicación de Análisis Financiero")
-    
-    # Menú desplegable
-    menu = st.sidebar.selectbox(
-        "Selecciona una sección",
-        ["Análisis de acciones", "Gestión de carteras"]
+def handle_portfolio_management():
+    # Submenú para Gestión de carteras
+    submenu = st.sidebar.selectbox(
+        "Selecciona una opción de gestión de carteras",
+        ["Análisis de Cartera", "Optimización de Cartera"]
     )
+
+
+
+
     
-    if menu == "Gestión de carteras":
-        st.subheader("Gestión de Carteras")
-        portfolio_option = st.sidebar.selectbox(
-            "Selecciona una opción de gestión de carteras",
-            ["Análisis de cartera", "Optimización de cartera"]
-        )
-        
-        if portfolio_option == "Análisis de cartera":
+
+ if portfolio_option == "Análisis de cartera":
             st.subheader("Análisis de Cartera")
             st.write("Por favor, ingresa los datos necesarios para el análisis de cartera.")
             
@@ -582,13 +576,21 @@ def app():
             except Exception as e:
                 st.error(f"Ocurrió un error: {e}")
 
-        elif portfolio_option == "Optimización de cartera":
-            st.subheader("Optimización de Cartera")
-            st.write("Aquí va el contenido para la optimización de cartera.")
-            # Agrega tu código y widgets aquí
 
-if __name__ == "__main__":
-    app()
+
+
+
+    
+
+
+    
+    elif submenu == "Optimización de Cartera":
+        st.subheader("Optimización de Cartera")
+        # Aquí va el código para la optimización de cartera
+        st.write("Aquí puedes implementar la optimización de cartera.")
+
+
+    
 
 
 def get_stock_data(ticker, start_date, end_date):

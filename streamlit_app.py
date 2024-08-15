@@ -362,20 +362,27 @@ if submenu_acciones == "Riesgo":
 
 
 # Si la opción seleccionada es "Gestión de Carteras"
-elif menu == "Gestión de Carteras":
+if menu == "Gestión de Carteras":
     st.subheader("Gestión de Carteras")
-     # Desplegable para seleccionar opciones dentro de "Gestión de Carteras"
+    
+    # Desplegable para seleccionar opciones dentro de "Gestión de Carteras"
     submenu_gestion = st.selectbox(
         "Selecciona un análisis de cartera:",
         ("Análisis de la Cartera", "Pesos Óptimos")
     )
-
- if submenu_gestion == "Análisis de la Cartera":
+    
+    if submenu_gestion == "Análisis de la Cartera":
         st.subheader("Análisis de la Cartera")
-
-st.write("Aquí se realizará el análisis de la cartera. Puedes incluir gráficos y análisis de datos.")
+        
+        # Código para el análisis de la cartera
+        # Aquí puedes agregar los elementos necesarios para el análisis de la cartera
+        
+        st.write("Aquí se realizará el análisis de la cartera. Puedes incluir gráficos y análisis de datos.")
         
     elif submenu_gestion == "Pesos Óptimos":
         st.subheader("Pesos Óptimos")
-
-st.write("Aquí se calcularán y mostrarán los pesos óptimos de la cartera. Puedes incluir gráficos y cálculos.")
+        
+        # Código para la optimización de pesos
+        # Aquí puedes agregar los elementos necesarios para calcular y mostrar los pesos óptimos
+        
+        st.write("Aquí se calcularán y mostrarán los pesos óptimos de la cartera. Puedes incluir gráficos y cálculos.")

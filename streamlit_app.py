@@ -289,10 +289,64 @@ def handle_stock_analysis():
         except Exception as e:
             st.error(f"Ocurrió un error: {e}")
 
-    elif submenu == "Análisis Fundamental":
+ 
+        if submenu_acciones == "Análisis Fundamental":
         st.subheader("Análisis Fundamental")
-        # Aquí va el código para el análisis fundamental
-        st.write("Aquí puedes implementar el análisis fundamental.")
+ # Entradas de usuario
+        ticker = st.text_input("Símbolo bursátil:", value='AAPL')
+        start_date = st.date_input('Fecha de inicio', (datetime.today() - timedelta(days=252)).date())
+        end_date = st.date_input('Fecha de fin', datetime.today().date())
+
+    
+        try:
+            # Asegúrate de que info se obtiene correctamente
+            hist, info = get_stock_data(ticker, start_date, end_date)
+
+            if info is None:
+                st.error("No se pudo obtener información fundamental para el símbolo proporcionado.")
+            else:
+                fundamental_data = {
+                    'Nombre': info.get('shortName', 'N/A'),
+                    'Sector': info.get('sector', 'N/A'),
+                    'Industria': info.get('industry', 'N/A'),
+                    'Precio Actual': f"${info.get('currentPrice', 'N/A'):.2f}" if 'currentPrice' in info else 'N/A',
+                    'Ratios de Valoración': {
+                        'Price Earnings Ratio': info.get('trailingPE', 'N/A'),
+                        'Dividend Yield': f"{info.get('dividendYield', 'N/A')*100:.2f}%" if info.get('dividendYield') else 'N/A',
+                        'Price to Book Value': info.get('priceToBook', 'N/A'),
+                        'PEG Ratio (5yr expected)': info.get('pegRatio', 'N/A'),
+                        'Price to Cash Flow Ratio': info.get('priceToCashflow', 'N/A'),
+                        'EV/EBITDA': info.get('enterpriseToEbitda', 'N/A')
+                    },
+                    'Ratios de Rentabilidad': {
+                        'Return on Equity': f"{info.get('returnOnEquity', 'N/A')*100:.2f}%" if info.get('returnOnEquity') else 'N/A',
+                        'Return on Assets': f"{info.get('returnOnAssets', 'N/A')*100:.2f}%" if info.get('returnOnAssets') else 'N/A',
+                        'Profit Margin': f"{info.get('profitMargins', 'N/A')*100:.2f}%" if info.get('profitMargins') else 'N/A',
+                        'Operating Margin (ttm)': f"{info.get('operatingMargins', 'N/A')*100:.2f}%" if info.get('operatingMargins') else 'N/A',
+                        'Payout Ratio': f"{info.get('payoutRatio', 'N/A')*100:.2f}%" if info.get('payoutRatio') else 'N/A'
+                    },
+                    'Ratios de Liquidez y Solvencia': {
+                        'Current Ratio (mrq)': info.get('currentRatio', 'N/A'),
+                        'Total Debt/Equity (mrq)': info.get('debtToEquity', 'N/A')
+                    },
+                    'Otras Métricas': {
+                        'Volumen Actual': f"{info.get('volume', 'N/A'):,}" if 'volume' in info else 'N/A',
+                        'Earnings Per Share (EPS)': info.get('trailingEps', 'N/A'),
+                        'Capitalización de Mercado': f"${info.get('marketCap', 'N/A') / 1e9:.2f} B" if info.get('marketCap') else 'N/A',
+                        'Beta': info.get('beta', 'N/A')
+                    }
+                }
+
+                for category, metrics in fundamental_data.items():
+                    st.write(f"**{category}:**")
+                    if isinstance(metrics, dict):
+                        st.write(pd.DataFrame(list(metrics.items()), columns=['Métrica', 'Valor']).set_index('Métrica'))
+                    else:
+                        st.write(metrics)
+
+        except Exception as e:
+            st.error(f"Ocurrió un error: {e}")
+
 
     elif submenu == "Análisis de Riesgo":
         st.subheader("Análisis de Riesgo")

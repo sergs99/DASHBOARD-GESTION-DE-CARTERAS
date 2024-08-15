@@ -410,17 +410,6 @@ def plot_metrics(returns, market_returns):
     # Implementa aquí la lógica para visualizar métricas.
     pass
 
-def get_stock_data(ticker, start_date, end_date):
-    try:
-        data = yf.download(ticker, start=start_date, end=end_date)
-        if data.empty:
-            return None  # Si los datos están vacíos, se retorna None
-        return data
-    except Exception as e:
-        print(f"Error al obtener datos para {ticker}: {e}")
-        print(traceback.format_exc())
-        return None  # En caso de error, también se retorna None
-
 # Comienzo de la interfaz en Streamlit
 if submenu_acciones == "Riesgo":
     st.subheader("Análisis de Riesgo")

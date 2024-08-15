@@ -6,9 +6,9 @@ import scipy.stats as stats
 import matplotlib.pyplot as plt
 import seaborn as sns
 import ta
-import traceback
 import plotly.graph_objs as go
 from datetime import datetime, timedelta
+
 # Configuración básica de la aplicación
 st.set_page_config(page_title="Análisis Financiero", layout="wide")
 
@@ -353,186 +353,46 @@ if menu == "Acciones":
         except Exception as e:
             st.error(f"Ocurrió un error: {e}")
 
+    elif submenu_acciones == "Riesgo":
+        st.subheader("Análisis de Riesgo")
+        # Aquí puedes agregar el análisis de riesgo y el resto de la implementación.
+        pass
 
 
-# Definiciones de funciones de cálculo
-def calculate_var(returns, confidence_level=0.95):
-    return np.percentile(returns, (1 - confidence_level) * 100)
 
-def calculate_cvar(returns, confidence_level=0.95):
-    var = calculate_var(returns, confidence_level)
-    return returns[returns <= var].mean()
 
-def calculate_volatility(returns):
-    return returns.std()
 
-def calculate_drawdown(returns):
-    cumulative_returns = (1 + returns).cumprod()
-    peak = cumulative_returns.cummax()
-    drawdown = (cumulative_returns - peak) / peak
-    return drawdown
 
-def calculate_beta(returns, market_returns):
-    covariance_matrix = np.cov(returns, market_returns)
-    return covariance_matrix[0, 1] / covariance_matrix[1, 1]
 
-def calculate_sharpe_ratio(returns, risk_free_rate=0.0):
-    excess_returns = returns - risk_free_rate
-    return excess_returns.mean() / excess_returns.std()
 
-def calculate_sortino_ratio(returns, target_return=0.0):
-    negative_returns = returns[returns < target_return]
-    downside_deviation = negative_returns.std()
-    return (returns.mean() - target_return) / downside_deviation
 
-def calculate_variance(returns):
-    return returns.var()
 
-def calculate_kurtosis(returns):
-    return returns.kurtosis()
+# Función para validar los pesos
+def validate_weights(weights, num_assets):
+    if abs(sum(weights) - 1) > 0.001:
+        raise ValueError("Los pesos no suman 1.")
+    if any(w < 0 for w in weights):
+        raise ValueError("Los pesos no pueden ser negativos.")
+    if len(weights) != num_assets:
+        raise ValueError("El número de pesos no coincide con el número de activos.")
+    return weights
 
-def calculate_skewness(returns):
-    return returns.skew()
-
-# Supón que 'get_stock_data' está definida en otra parte de tu código
-def get_stock_data(ticker, start_date, end_date):
-    try:
-        data = yf.download(ticker, start=start_date, end=end_date)
-        if data.empty:
-            return None
-        return data
-    except Exception as e:
-        st.error(f"Error al obtener datos para {ticker}: {e}")
-        return None
-
-def plot_metrics(returns, market_returns):
-    # Implementa aquí la lógica para visualizar métricas.
-    pass
-
-# Comienzo de la interfaz en Streamlit
-if submenu_acciones == "Riesgo":
-    st.subheader("Análisis de Riesgo")
-    
-    # Inputs de usuario
-    stock_ticker = st.text_input("Símbolo bursátil:", value='AAPL')
-    market_ticker = st.text_input("Símbolo del mercado:", value='^GSPC')
-    start_date = st.date_input('Fecha de inicio', (datetime.today() - timedelta(days=252)).date())
-    end_date = st.date_input('Fecha de fin', datetime.today().date())
-    
-    if st.button('Calcular'):
+# Función para descargar datos históricos
+def download_data(tickers, benchmark_ticker):
+    data = pd.DataFrame()
+    for t in tickers + [benchmark_ticker]:
         try:
-            # Obtener datos de acciones y del mercado
-            stock_data = get_stock_data(stock_ticker, start_date, end_date)
-            market_data = get_stock_data(market_ticker, start_date, end_date)
-            
-            # Verificar si se obtuvieron datos para ambos símbolos
-            if stock_data is None or market_data is None:
-                st.error("No se pudieron obtener datos para uno o ambos símbolos bursátiles o los datos están vacíos.")
-                st.stop()  # Detener la ejecución si no se obtuvieron datos
-
-            # Calcular métricas de riesgo, suponiendo que ya has definido estas funciones previamente
-            stock_data['Returns'] = stock_data['Close'].pct_change().dropna()
-            market_data['Returns'] = market_data['Close'].pct_change().dropna()
-
-            var = calculate_var(stock_data['Returns'])
-            cvar = calculate_cvar(stock_data['Returns'])
-            volatility = calculate_volatility(stock_data['Returns'])
-            drawdown = calculate_drawdown(stock_data['Returns'])
-            beta = calculate_beta(stock_data['Returns'], market_data['Returns'])
-            sharpe_ratio = calculate_sharpe_ratio(stock_data['Returns'])
-            sortino_ratio = calculate_sortino_ratio(stock_data['Returns'])
-            variance = calculate_variance(stock_data['Returns'])
-            kurtosis = calculate_kurtosis(stock_data['Returns'])
-            skewness = calculate_skewness(stock_data['Returns'])
-
-            # Mostrar resultados
-            st.write(f"Valor en Riesgo (VaR): {var:.2%}")
-            st.write(f"Valor en Riesgo Condicional (CVaR): {cvar:.2%}")
-            st.write(f"Volatilidad: {volatility:.2%}")
-            st.write(f"Drawdown Máximo: {drawdown.min():.2%}")
-            st.write(f"Beta: {beta:.2f}")
-            st.write(f"Ratio Sharpe: {sharpe_ratio:.2f}")
-            st.write(f"Ratio Sortino: {sortino_ratio:.2f}")
-            st.write(f"Varianza: {variance:.2%}")
-            st.write(f"Kurtosis: {kurtosis:.2f}")
-            st.write(f"Sesgo: {skewness:.2f}")
-
-            # Mostrar gráficos
-            st.line_chart(drawdown, use_container_width=True)
-            plot_metrics(stock_data['Returns'], market_data['Returns'])
-        
+            data[t] = yf.download(t, start='2015-01-01')['Adj Close']
         except Exception as e:
-            st.error(f"Ocurrió un error: {e}")
-            # Calcular retornos
-            stock_data['Returns'] = stock_data['Close'].pct_change().dropna()
-            market_data['Returns'] = market_data['Close'].pct_change().dropna()
-            
-            # Calcular métricas de riesgo
-            var = calculate_var(stock_data['Returns'])
-            cvar = calculate_cvar(stock_data['Returns'])
-            volatility = calculate_volatility(stock_data['Returns'])
-            drawdown = calculate_drawdown(stock_data['Returns'])
-            beta = calculate_beta(stock_data['Returns'], market_data['Returns'])
-            sharpe_ratio = calculate_sharpe_ratio(stock_data['Returns'])
-            sortino_ratio = calculate_sortino_ratio(stock_data['Returns'])
-            variance = calculate_variance(stock_data['Returns'])
-            kurtosis = calculate_kurtosis(stock_data['Returns'])
-            skewness = calculate_skewness(stock_data['Returns'])
-            
-            # Mostrar resultados
-            st.write(f"Valor en Riesgo (VaR): {var:.2%}")
-            st.write(f"Valor en Riesgo Condicional (CVaR): {cvar:.2%}")
-            st.write(f"Volatilidad: {volatility:.2%}")
-            st.write(f"Drawdown Máximo: {drawdown.min():.2%}")
-            st.write(f"Beta: {beta:.2f}")
-            st.write(f"Ratio Sharpe: {sharpe_ratio:.2f}")
-            st.write(f"Ratio Sortino: {sortino_ratio:.2f}")
-            st.write(f"Varianza: {variance:.2%}")
-            st.write(f"Kurtosis: {kurtosis:.2f}")
-            st.write(f"Sesgo: {skewness:.2f}")
-            
-            # Mostrar gráficos
-            st.line_chart(drawdown, use_container_width=True)
-            plot_metrics(stock_data['Returns'], market_data['Returns'])
-        
-        except Exception as e:
-            st.error(f"Ocurrió un error: {e}. Traceback: {traceback.format_exc()}")
+            print(f"Error descargando datos para {t}: {e}")
+            raise
+    if data.empty:
+        raise ValueError("No se pudo descargar datos para los tickers proporcionados.")
+    return data
 
-
-
-
-# Si la opción seleccionada es "Gestión de Carteras"
-elif menu == "Gestión de Carteras":
-    st.subheader("Gestión de Carteras")
-
-
-# Definir los tickers de los activos
-assets = ['AAPL', 'MSFT', 'GOOGL', 'AMZN']
-
-# Descargar datos históricos
-data = pd.DataFrame()
-for t in assets:
-    data[t] = yf.download(t, start='2015-01-01')['Adj Close']
-
-# Calcular rendimientos logarítmicos
-log_returns = np.log(1 + data.pct_change()).dropna()
-
-# Inicialización de listas para almacenar resultados de simulaciones
-port_returns = []
-port_vols = []
-port_weights = []
-
-# Simulación de múltiples carteras
-num_portfolios = 10000
-for i in range(num_portfolios):
-    num_assets = len(assets)
-    weights = np.random.random(num_assets)
-    weights /= np.sum(weights)  # Normalizar los pesos
-    port_ret = np.sum(log_returns.mean() * weights) * 252  # Retorno anualizado
-    port_var = np.sqrt(np.dot(weights.T, np.dot(log_returns.cov() * 252, weights)))  # Volatilidad anualizada
-    port_returns.append(port_ret)
-    port_vols.append(port_var)
-    port_weights.append(weights)
+# Función para calcular rendimientos logarítmicos
+def calculate_log_returns(data):
+    return np.log(1 + data.pct_change()).dropna()
 
 # Función para calcular estadísticas del portafolio
 def portfolio_stats(weights, log_returns):
@@ -541,70 +401,198 @@ def portfolio_stats(weights, log_returns):
     sharpe = port_ret / port_var
     return {'Return': port_ret, 'Volatility': port_var, 'Sharpe': sharpe}
 
-# Función de minimización para el Ratio Sharpe
-def minimize_sharpe(weights, log_returns):
-    return -portfolio_stats(weights, log_returns)['Sharpe']
+# Función para calcular VaR y CVaR
+def portfolio_risk_measures(weights, log_returns, alpha=0.05):
+    port_returns = np.dot(log_returns, weights)
+    var = np.percentile(port_returns, 100 * alpha)
+    cvar = port_returns[port_returns <= var].mean()
+    return {'VaR': var, 'CVaR': cvar}
 
-# Convertir listas a arrays numpy
-port_returns = np.array(port_returns)
-port_vols = np.array(port_vols)
-port_weights = np.array(port_weights)
+# Función para calcular Ratio de Sortino
+def sortino_ratio(returns, target_return=0):
+    downside_returns = returns[returns < target_return]
+    downside_volatility = np.sqrt((downside_returns**2).mean()) * np.sqrt(252)
+    return (returns.mean() - target_return) / downside_volatility
 
-# Calcular Ratio Sharpe para cada cartera simulada
-sharpe = port_returns / port_vols
+# Función para calcular Desviación Media
+def mean_absolute_deviation(returns):
+    return np.mean(np.abs(returns - np.mean(returns))) * np.sqrt(252)
 
-# Encontrar la cartera con el máximo Ratio Sharpe
-max_sr_index = sharpe.argmax()
-max_sr_vol = port_vols[max_sr_index]
-max_sr_ret = port_returns[max_sr_index]
-max_sr_weights = port_weights[max_sr_index]
+# Función para calcular Drawdown Máximo
+def max_drawdown(returns):
+    cumulative_returns = np.cumsum(returns)
+    peaks = np.maximum.accumulate(cumulative_returns)
+    drawdowns = (peaks - cumulative_returns) / peaks
+    return np.max(drawdowns) * 100
 
-# Configuración para la optimización
-num_assets = len(assets)
-constraints = ({'type': 'eq', 'fun': lambda x: np.sum(x) - 1})
-bounds = tuple((0, 1) for _ in range(num_assets))
-initializer = num_assets * [1. / num_assets]
+# Función para calcular Ratio de Calmar
+def calmar_ratio(returns):
+    return np.mean(returns) / max_drawdown(returns)
 
-# Optimización para el Ratio Sharpe
-optimal_sharpe = optimize.minimize(minimize_sharpe, initializer, method='SLSQP', args=(log_returns,), bounds=bounds, constraints=constraints)
-optimal_sharpe_weights = optimal_sharpe.x.round(4)
-optimal_stats = portfolio_stats(optimal_sharpe_weights, log_returns)
+# Función para calcular Beta
+def calculate_beta(portfolio_returns, benchmark_returns):
+    covariance = np.cov(portfolio_returns, benchmark_returns)[0, 1]
+    variance = np.var(benchmark_returns)
+    return covariance / variance
 
-# Resultados
-print("Pesos óptimos de la cartera: ", list(zip(assets, list(optimal_sharpe_weights * 100))))
-print("Retorno óptimo de la cartera: ", round(optimal_stats['Return'] * 100, 4))
-print("Volatilidad óptima de la cartera: ", round(optimal_stats['Volatility'] * 100, 4))
-print("Ratio Sharpe óptimo de la cartera: ", round(optimal_stats['Sharpe'], 4))
+# Función para calcular Ratio de Treynor
+def treynor_ratio(weights, log_returns, benchmark_returns, risk_free_rate=0.02):
+    portfolio_returns = np.dot(log_returns, weights)
+    beta = calculate_beta(portfolio_returns, benchmark_returns)
+    portfolio_return = np.mean(portfolio_returns) * 252
+    excess_return = portfolio_return - risk_free_rate
+    return excess_return / beta
 
-# Graficar la frontera eficiente y portafolio óptimo
-plt.figure(figsize=(12, 6))
-plt.scatter(port_vols, port_returns, c=(port_returns / port_vols), cmap='viridis', marker='o', s=10, alpha=0.5)
-plt.colorbar(label='Ratio Sharpe (rf=0)')
-plt.scatter(max_sr_vol, max_sr_ret, c='red', s=100, label='Máximo Sharpe')
-plt.scatter(optimal_stats['Volatility'], optimal_stats['Return'], c='blue', s=100, label='Óptima')
-plt.title('Frontera Eficiente y Cartera Óptima')
-plt.xlabel('Volatilidad de la cartera')
-plt.ylabel('Retorno de la cartera')
-plt.legend()
-plt.show()
+# Función para calcular Ratio de Información
+def information_ratio(portfolio_returns, benchmark_returns):
+    excess_returns = portfolio_returns - benchmark_returns
+    tracking_error = np.std(excess_returns) * np.sqrt(252)
+    average_excess_return = np.mean(excess_returns) * 252
+    return average_excess_return / tracking_error
 
-# Gráfica de evolución de los precios
-(data / data.iloc[0] * 100).plot(figsize=(12, 6))
-plt.xlabel('Fecha')
-plt.ylabel('Precio Normalizado')
-plt.title('Evolución de Precios Normalizados')
-plt.show()
+# Función para calcular Alpha de Jensen
+def jensen_alpha(weights, log_returns, benchmark_returns, risk_free_rate=0.02):
+    portfolio_returns = np.dot(log_returns, weights)
+    beta = calculate_beta(portfolio_returns, benchmark_returns)
+    portfolio_return = np.mean(portfolio_returns) * 252
+    benchmark_return = np.mean(benchmark_returns) * 252
+    alpha = portfolio_return - (risk_free_rate + beta * (benchmark_return - risk_free_rate))
+    return alpha
 
-# Histograma de retornos
-sns.histplot(log_returns, kde=True)
-plt.xlabel('Retornos logarítmicos diarios')
-plt.ylabel('Frecuencia')
-plt.title('Distribución de Retornos Diarios')
-plt.show()
+# Función para calcular Ratio de Omega
+def omega_ratio(portfolio_returns, risk_free_rate=0.02):
+    threshold = np.mean(portfolio_returns) - risk_free_rate
+    gain = portfolio_returns[portfolio_returns > threshold].sum()
+    loss = -portfolio_returns[portfolio_returns <= threshold].sum()
+    return gain / loss
 
-# Heatmap de la matriz de correlación
-plt.figure(figsize=(12, 6))
-sns.heatmap(log_returns.corr(), annot=True, linewidths=1)
-plt.title("Matriz de Correlación")
-plt.show()
+# Función para análisis de sensibilidad (Stress Testing)
+def stress_test(log_returns, weights):
+    stressed_returns = log_returns * 1.10
+    stressed_portfolio_returns = np.dot(stressed_returns, weights)
+    return {
+        'Stressed VaR': np.percentile(stressed_portfolio_returns, 5),
+        'Stressed CVaR': stressed_portfolio_returns[stressed_portfolio_returns <= np.percentile(stressed_portfolio_returns, 5)].mean()
+    }
 
+# Aplicación Streamlit
+def app():
+    st.title("Aplicación de Análisis Financiero")
+    
+    # Menú desplegable
+    menu = st.sidebar.selectbox(
+        "Selecciona una sección",
+        ["Análisis de acciones", "Gestión de carteras"]
+    )
+    
+    if menu == "Gestión de carteras":
+        st.subheader("Gestión de Carteras")
+        portfolio_option = st.sidebar.selectbox(
+            "Selecciona una opción de gestión de carteras",
+            ["Análisis de cartera", "Optimización de cartera"]
+        )
+        
+        if portfolio_option == "Análisis de cartera":
+            st.subheader("Análisis de Cartera")
+            st.write("Por favor, ingresa los datos necesarios para el análisis de cartera.")
+            
+            try:
+                # Solicitar tickers, pesos y benchmark al usuario
+                tickers_input = st.text_input("Ingresa los tickers de las acciones, separados por comas:")
+                tickers = [ticker.strip().upper() for ticker in tickers_input.split(',')]
+                
+                weights_input = st.text_input("Ingresa los pesos correspondientes (deben sumar 1), separados por comas:")
+                weights = [float(weight) for weight in weights_input.split(',')]
+                
+                benchmark_ticker = st.text_input("Ingresa el ticker del benchmark (por ejemplo, ^GSPC):").strip().upper()
+                
+                # Verifica el número de tickers y pesos
+                if len(weights) != len(tickers):
+                    st.error(f"El número de pesos ({len(weights)}) debe coincidir con el número de tickers ({len(tickers)}).")
+                else:
+                    weights = validate_weights(weights, len(tickers))
+
+                    # Descargar datos históricos
+                    data = download_data(tickers, benchmark_ticker)
+
+                    # Calcular rendimientos logarítmicos solo para los tickers de las acciones
+                    log_returns = calculate_log_returns(data[tickers])
+
+                    # Obtener los rendimientos del benchmark
+                    benchmark_returns = np.log(1 + data[benchmark_ticker].pct_change()).dropna()
+
+                    # Alinear las fechas del benchmark con los datos del portafolio
+                    common_dates = log_returns.index.intersection(benchmark_returns.index)
+                    log_returns = log_returns.loc[common_dates]
+                    benchmark_returns = benchmark_returns.loc[common_dates]
+
+                    # Convertir pesos a un array numpy
+                    weights = np.array(weights)
+
+                    # Calcular estadísticas del portafolio
+                    portfolio_returns = np.dot(log_returns, weights)
+                    optimal_stats = portfolio_stats(weights, log_returns)
+                    optimal_risk_measures = portfolio_risk_measures(weights, log_returns)
+                    sortino = sortino_ratio(portfolio_returns)
+                    mad = mean_absolute_deviation(portfolio_returns)
+                    max_dd = max_drawdown(portfolio_returns)
+                    calmar = calmar_ratio(portfolio_returns)
+                    treynor = treynor_ratio(weights, log_returns, benchmark_returns)
+                    info_ratio = information_ratio(portfolio_returns, benchmark_returns)
+                    alpha = jensen_alpha(weights, log_returns, benchmark_returns)
+                    omega = omega_ratio(portfolio_returns)
+                    stressed_risk = stress_test(log_returns, weights)
+
+                    # Resultados
+                    st.write("Retorno óptimo de la cartera: ", round(optimal_stats['Return'] * 100, 4))
+                    st.write("Volatilidad óptima de la cartera: ", round(optimal_stats['Volatility'] * 100, 4))
+                    st.write("Ratio Sharpe óptimo de la cartera: ", round(optimal_stats['Sharpe'], 4))
+                    st.write("VaR (5%): ", round(optimal_risk_measures['VaR'] * 100, 4))
+                    st.write("CVaR (5%): ", round(optimal_risk_measures['CVaR'] * 100, 4))
+                    st.write("Ratio de Sortino: ", round(sortino, 4))
+                    st.write("Desviación Media: ", round(mad * 100, 4))
+                    st.write("Drawdown Máximo: ", round(max_dd, 4))
+                    st.write("Ratio de Calmar: ", round(calmar, 4))
+                    st.write("Ratio de Treynor: ", round(treynor, 4))
+                    st.write("Ratio de Información: ", round(info_ratio, 4))
+                    st.write("Alpha de Jensen: ", round(alpha, 4))
+                    st.write("Ratio de Omega: ", round(omega, 4))
+                    st.write("VaR (5%) en escenario estresado: ", round(stressed_risk['Stressed VaR'] * 100, 4))
+                    st.write("CVaR (5%) en escenario estresado: ", round(stressed_risk['Stressed CVaR'] * 100, 4))
+
+                    # Graficar la evolución de los precios
+                    st.subheader("Evolución de Precios Normalizados")
+                    fig, ax = plt.subplots(figsize=(12, 6))
+                    (data / data.iloc[0] * 100).plot(ax=ax)
+                    ax.set_xlabel('Fecha')
+                    ax.set_ylabel('Precio Normalizado')
+                    ax.set_title('Evolución de Precios Normalizados')
+                    st.pyplot(fig)
+
+                    # Histograma de retornos
+                    st.subheader("Distribución de Retornos Diarios")
+                    fig, ax = plt.subplots(figsize=(12, 6))
+                    ax.hist(portfolio_returns, bins=50, alpha=0.75, label='Retornos logarítmicos')
+                    ax.set_xlabel('Retornos logarítmicos diarios')
+                    ax.set_ylabel('Frecuencia')
+                    ax.set_title('Distribución de Retornos Diarios')
+                    ax.legend()
+                    st.pyplot(fig)
+
+                    # Heatmap de la matriz de correlación
+                    st.subheader("Matriz de Correlación")
+                    fig, ax = plt.subplots(figsize=(12, 6))
+                    sns.heatmap(log_returns.corr(), annot=True, linewidths=1, cmap='coolwarm', ax=ax)
+                    ax.set_title("Matriz de Correlación")
+                    st.pyplot(fig)
+
+            except Exception as e:
+                st.error(f"Ocurrió un error: {e}")
+
+        elif portfolio_option == "Optimización de cartera":
+            st.subheader("Optimización de Cartera")
+            st.write("Aquí va el contenido para la optimización de cartera.")
+            # Agrega tu código y widgets aquí
+
+if __name__ == "__main__":
+    app()

@@ -15,11 +15,7 @@ def app():
         "Selecciona una sección",
         ["Análisis de acciones", "Gestión de carteras"]
     )
-def get_stock_data(ticker, start_date, end_date):
-    stock = yf.Ticker(ticker)
-    hist = stock.history(start=start_date, end=end_date)
-    info = stock.info
-    return hist, info
+
     if menu == "Análisis de acciones":
         handle_stock_analysis()
     elif menu == "Gestión de carteras":
@@ -320,7 +316,11 @@ def handle_portfolio_management():
         # Aquí va el código para la optimización de cartera
         st.write("Aquí puedes implementar la optimización de cartera.")
 
-
+def get_stock_data(ticker, start_date, end_date):
+    stock = yf.Ticker(ticker)
+    hist = stock.history(start=start_date, end=end_date)
+    info = stock.info
+    return hist, info
 
 if __name__ == "__main__":
     app()

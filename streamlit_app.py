@@ -473,124 +473,107 @@ def handle_portfolio_management():
         "Selecciona una opción de gestión de carteras",
         ["Análisis de Cartera", "Optimización de Cartera"]
     )
-
-
-
     
-
-      if submenu == "Análisis de Cartera":
+    if submenu == "Análisis de Cartera":
         st.subheader("Análisis de Cartera")
         
+        try:
+            # Solicitar tickers, pesos y benchmark al usuario
+            tickers_input = st.text_input("Ingresa los tickers de las acciones, separados por comas:")
+            tickers = [ticker.strip().upper() for ticker in tickers_input.split(',')]
             
-            try:
-                # Solicitar tickers, pesos y benchmark al usuario
-                tickers_input = st.text_input("Ingresa los tickers de las acciones, separados por comas:")
-                tickers = [ticker.strip().upper() for ticker in tickers_input.split(',')]
-                
-                weights_input = st.text_input("Ingresa los pesos correspondientes (deben sumar 1), separados por comas:")
-                weights = [float(weight) for weight in weights_input.split(',')]
-                
-                benchmark_ticker = st.text_input("Ingresa el ticker del benchmark (por ejemplo, ^GSPC):").strip().upper()
-                
-                # Verifica el número de tickers y pesos
-                if len(weights) != len(tickers):
-                    st.error(f"El número de pesos ({len(weights)}) debe coincidir con el número de tickers ({len(tickers)}).")
-                else:
-                    weights = validate_weights(weights, len(tickers))
+            weights_input = st.text_input("Ingresa los pesos correspondientes (deben sumar 1), separados por comas:")
+            weights = [float(weight) for weight in weights_input.split(',')]
+            
+            benchmark_ticker = st.text_input("Ingresa el ticker del benchmark (por ejemplo, ^GSPC):").strip().upper()
+            
+            # Verifica el número de tickers y pesos
+            if len(weights) != len(tickers):
+                st.error(f"El número de pesos ({len(weights)}) debe coincidir con el número de tickers ({len(tickers)}).")
+            else:
+                weights = validate_weights(weights, len(tickers))
 
-                    # Descargar datos históricos
-                    data = download_data(tickers, benchmark_ticker)
+                # Descargar datos históricos
+                data = download_data(tickers, benchmark_ticker)
 
-                    # Calcular rendimientos logarítmicos solo para los tickers de las acciones
-                    log_returns = calculate_log_returns(data[tickers])
+                # Calcular rendimientos logarítmicos solo para los tickers de las acciones
+                log_returns = calculate_log_returns(data[tickers])
 
-                    # Obtener los rendimientos del benchmark
-                    benchmark_returns = np.log(1 + data[benchmark_ticker].pct_change()).dropna()
+                # Obtener los rendimientos del benchmark
+                benchmark_returns = np.log(1 + data[benchmark_ticker].pct_change()).dropna()
 
-                    # Alinear las fechas del benchmark con los datos del portafolio
-                    common_dates = log_returns.index.intersection(benchmark_returns.index)
-                    log_returns = log_returns.loc[common_dates]
-                    benchmark_returns = benchmark_returns.loc[common_dates]
+                # Alinear las fechas del benchmark con los datos del portafolio
+                common_dates = log_returns.index.intersection(benchmark_returns.index)
+                log_returns = log_returns.loc[common_dates]
+                benchmark_returns = benchmark_returns.loc[common_dates]
 
-                    # Convertir pesos a un array numpy
-                    weights = np.array(weights)
+                # Convertir pesos a un array numpy
+                weights = np.array(weights)
 
-                    # Calcular estadísticas del portafolio
-                    portfolio_returns = np.dot(log_returns, weights)
-                    optimal_stats = portfolio_stats(weights, log_returns)
-                    optimal_risk_measures = portfolio_risk_measures(weights, log_returns)
-                    sortino = sortino_ratio(portfolio_returns)
-                    mad = mean_absolute_deviation(portfolio_returns)
-                    max_dd = max_drawdown(portfolio_returns)
-                    calmar = calmar_ratio(portfolio_returns)
-                    treynor = treynor_ratio(weights, log_returns, benchmark_returns)
-                    info_ratio = information_ratio(portfolio_returns, benchmark_returns)
-                    alpha = jensen_alpha(weights, log_returns, benchmark_returns)
-                    omega = omega_ratio(portfolio_returns)
-                    stressed_risk = stress_test(log_returns, weights)
+                # Calcular estadísticas del portafolio
+                portfolio_returns = np.dot(log_returns, weights)
+                optimal_stats = portfolio_stats(weights, log_returns)
+                optimal_risk_measures = portfolio_risk_measures(weights, log_returns)
+                sortino = sortino_ratio(portfolio_returns)
+                mad = mean_absolute_deviation(portfolio_returns)
+                max_dd = max_drawdown(portfolio_returns)
+                calmar = calmar_ratio(portfolio_returns)
+                treynor = treynor_ratio(weights, log_returns, benchmark_returns)
+                info_ratio = information_ratio(portfolio_returns, benchmark_returns)
+                alpha = jensen_alpha(weights, log_returns, benchmark_returns)
+                omega = omega_ratio(portfolio_returns)
+                stressed_risk = stress_test(log_returns, weights)
 
-                    # Resultados
-                    st.write("Retorno óptimo de la cartera: ", round(optimal_stats['Return'] * 100, 4))
-                    st.write("Volatilidad óptima de la cartera: ", round(optimal_stats['Volatility'] * 100, 4))
-                    st.write("Ratio Sharpe óptimo de la cartera: ", round(optimal_stats['Sharpe'], 4))
-                    st.write("VaR (5%): ", round(optimal_risk_measures['VaR'] * 100, 4))
-                    st.write("CVaR (5%): ", round(optimal_risk_measures['CVaR'] * 100, 4))
-                    st.write("Ratio de Sortino: ", round(sortino, 4))
-                    st.write("Desviación Media: ", round(mad * 100, 4))
-                    st.write("Drawdown Máximo: ", round(max_dd, 4))
-                    st.write("Ratio de Calmar: ", round(calmar, 4))
-                    st.write("Ratio de Treynor: ", round(treynor, 4))
-                    st.write("Ratio de Información: ", round(info_ratio, 4))
-                    st.write("Alpha de Jensen: ", round(alpha, 4))
-                    st.write("Ratio de Omega: ", round(omega, 4))
-                    st.write("VaR (5%) en escenario estresado: ", round(stressed_risk['Stressed VaR'] * 100, 4))
-                    st.write("CVaR (5%) en escenario estresado: ", round(stressed_risk['Stressed CVaR'] * 100, 4))
+                # Resultados
+                st.write("Retorno óptimo de la cartera: ", round(optimal_stats['Return'] * 100, 4))
+                st.write("Volatilidad óptima de la cartera: ", round(optimal_stats['Volatility'] * 100, 4))
+                st.write("Ratio Sharpe óptimo de la cartera: ", round(optimal_stats['Sharpe'], 4))
+                st.write("VaR (5%): ", round(optimal_risk_measures['VaR'] * 100, 4))
+                st.write("CVaR (5%): ", round(optimal_risk_measures['CVaR'] * 100, 4))
+                st.write("Ratio de Sortino: ", round(sortino, 4))
+                st.write("Desviación Media: ", round(mad * 100, 4))
+                st.write("Drawdown Máximo: ", round(max_dd, 4))
+                st.write("Ratio de Calmar: ", round(calmar, 4))
+                st.write("Ratio de Treynor: ", round(treynor, 4))
+                st.write("Ratio de Información: ", round(info_ratio, 4))
+                st.write("Alpha de Jensen: ", round(alpha, 4))
+                st.write("Ratio de Omega: ", round(omega, 4))
+                st.write("VaR (5%) en escenario estresado: ", round(stressed_risk['Stressed VaR'] * 100, 4))
+                st.write("CVaR (5%) en escenario estresado: ", round(stressed_risk['Stressed CVaR'] * 100, 4))
 
-                    # Graficar la evolución de los precios
-                    st.subheader("Evolución de Precios Normalizados")
-                    fig, ax = plt.subplots(figsize=(12, 6))
-                    (data / data.iloc[0] * 100).plot(ax=ax)
-                    ax.set_xlabel('Fecha')
-                    ax.set_ylabel('Precio Normalizado')
-                    ax.set_title('Evolución de Precios Normalizados')
-                    st.pyplot(fig)
+                # Graficar la evolución de los precios
+                st.subheader("Evolución de Precios Normalizados")
+                fig, ax = plt.subplots(figsize=(12, 6))
+                (data / data.iloc[0] * 100).plot(ax=ax)
+                ax.set_xlabel('Fecha')
+                ax.set_ylabel('Precio Normalizado')
+                ax.set_title('Evolución de Precios Normalizados')
+                st.pyplot(fig)
 
-                    # Histograma de retornos
-                    st.subheader("Distribución de Retornos Diarios")
-                    fig, ax = plt.subplots(figsize=(12, 6))
-                    ax.hist(portfolio_returns, bins=50, alpha=0.75, label='Retornos logarítmicos')
-                    ax.set_xlabel('Retornos logarítmicos diarios')
-                    ax.set_ylabel('Frecuencia')
-                    ax.set_title('Distribución de Retornos Diarios')
-                    ax.legend()
-                    st.pyplot(fig)
+                # Histograma de retornos
+                st.subheader("Distribución de Retornos Diarios")
+                fig, ax = plt.subplots(figsize=(12, 6))
+                ax.hist(portfolio_returns, bins=50, alpha=0.75, label='Retornos logarítmicos')
+                ax.set_xlabel('Retornos logarítmicos diarios')
+                ax.set_ylabel('Frecuencia')
+                ax.set_title('Distribución de Retornos Diarios')
+                ax.legend()
+                st.pyplot(fig)
 
-                    # Heatmap de la matriz de correlación
-                    st.subheader("Matriz de Correlación")
-                    fig, ax = plt.subplots(figsize=(12, 6))
-                    sns.heatmap(log_returns.corr(), annot=True, linewidths=1, cmap='coolwarm', ax=ax)
-                    ax.set_title("Matriz de Correlación")
-                    st.pyplot(fig)
+                # Heatmap de la matriz de correlación
+                st.subheader("Matriz de Correlación")
+                fig, ax = plt.subplots(figsize=(12, 6))
+                sns.heatmap(log_returns.corr(), annot=True, linewidths=1, cmap='coolwarm', ax=ax)
+                ax.set_title("Matriz de Correlación")
+                st.pyplot(fig)
 
-            except Exception as e:
-                st.error(f"Ocurrió un error: {e}")
+        except Exception as e:
+            st.error(f"Ocurrió un error: {e}")
 
-
-
-
-
-    
-
-
-    
     elif submenu == "Optimización de Cartera":
         st.subheader("Optimización de Cartera")
         # Aquí va el código para la optimización de cartera
         st.write("Aquí puedes implementar la optimización de cartera.")
-
-
-    
-
 
 def get_stock_data(ticker, start_date, end_date):
     stock = yf.Ticker(ticker)

@@ -2,9 +2,6 @@ import streamlit as st
 import yfinance as yf
 import pandas as pd
 import numpy as np
-import scipy.stats as stats
-import matplotlib.pyplot as plt
-import seaborn as sns
 import ta
 import plotly.graph_objs as go
 from datetime import datetime, timedelta
@@ -18,7 +15,11 @@ def app():
         "Selecciona una sección",
         ["Análisis de acciones", "Gestión de carteras"]
     )
-
+def get_stock_data(ticker, start_date, end_date):
+    stock = yf.Ticker(ticker)
+    hist = stock.history(start=start_date, end=end_date)
+    info = stock.info
+    return hist, info
     if menu == "Análisis de acciones":
         handle_stock_analysis()
     elif menu == "Gestión de carteras":
@@ -30,14 +31,8 @@ def handle_stock_analysis():
         "Selecciona un tipo de análisis",
         ["Análisis Técnico", "Análisis Fundamental", "Análisis de Riesgo"]
     )
-# Función para obtener datos de la acción
-def get_stock_data(ticker, start_date, end_date):
-    stock = yf.Ticker(ticker)
-    hist = stock.history(start=start_date, end=end_date)
-    info = stock.info
-    return hist, info
-    
-elif submenu_acciones == "Análisis Técnico":
+
+    if submenu == "Análisis Técnico":
         st.subheader("Análisis Técnico")
         
         # Entradas de usuario
@@ -324,6 +319,8 @@ def handle_portfolio_management():
         st.subheader("Optimización de Cartera")
         # Aquí va el código para la optimización de cartera
         st.write("Aquí puedes implementar la optimización de cartera.")
+
+
 
 if __name__ == "__main__":
     app()

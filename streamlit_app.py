@@ -358,9 +358,8 @@ if menu == "Acciones":
         # Aquí puedes agregar el análisis de riesgo y el resto de la implementación.
         pass
     
-   if menu == "Gestión de Carteras":
-    # Submenú para Gestión de Carteras
-    submenu = st.sidebar.selectbox(
+     if menu == "Gestión de Carteras":
+    submenu_gestioncarteras = st.sidebar.selectbox(
         "Selecciona un tipo de gestión de cartera",
         ["Optimización de Carteras", "Análisis de Cartera"]
     )

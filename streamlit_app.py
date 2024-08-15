@@ -354,7 +354,7 @@ if menu == "Acciones":
         # Aquí puedes agregar el análisis de riesgo y el resto de la implementación.
         pass
     
-   elif menu == "Gestión de Carteras":
+   if menu == "Gestión de Carteras":
     # Submenú para Gestión de Carteras
     submenu = st.sidebar.selectbox(
         "Selecciona un tipo de gestión de cartera",

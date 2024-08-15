@@ -24,7 +24,7 @@ def get_stock_data(ticker, start_date, end_date):
     return hist, info
 
 
-    )
+
     
     if submenu_acciones == "Análisis Técnico":
         st.subheader("Análisis Técnico")

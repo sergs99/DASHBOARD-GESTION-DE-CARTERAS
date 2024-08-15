@@ -581,7 +581,7 @@ if menu == "Gestión de Carteras":
             except Exception as e:
                 st.error(f"Ocurrió un error: {e}")
 
-        if portfolio_option == "Optimización de cartera":
-            st.subheader("Optimización de Cartera")
-            st.write("Aquí va el contenido para la optimización de cartera.")
-            # Agrega tu código y widgets aquí
+        elif portfolio_option == "Optimización de cartera":
+        st.subheader("Optimización de Cartera")
+        st.write("Aquí va el contenido para la optimización de cartera.")
+        # Agrega tu código y widgets aquí

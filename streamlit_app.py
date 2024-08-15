@@ -6,6 +6,7 @@ import scipy.stats as stats
 import matplotlib.pyplot as plt
 import seaborn as sns
 import ta
+import traceback
 import plotly.graph_objs as go
 from datetime import datetime, timedelta
 
@@ -353,6 +354,8 @@ if menu == "Acciones":
         except Exception as e:
             st.error(f"Ocurrió un error: {e}")
 
+
+
 # Definiciones de funciones de cálculo
 def calculate_var(returns, confidence_level=0.95):
     return np.percentile(returns, (1 - confidence_level) * 100)
@@ -397,11 +400,11 @@ def get_stock_data(ticker, start_date, end_date):
     try:
         data = yf.download(ticker, start=start_date, end=end_date)
         if data.empty:
-            return None, None
-        return data, None
+            return None
+        return data
     except Exception as e:
         st.error(f"Error al obtener datos para {ticker}: {e}")
-        return None, None
+        return None
 
 def plot_metrics(returns, market_returns):
     # Implementa aquí la lógica para visualizar métricas.
@@ -416,51 +419,51 @@ if submenu_acciones == "Riesgo":
     start_date = st.date_input('Fecha de inicio', (datetime.today() - timedelta(days=252)).date())
     end_date = st.date_input('Fecha de fin', datetime.today().date())
     
-   if st.button('Calcular'):
-    try:
-        # Obtener datos de acciones y del mercado
-        stock_data = get_stock_data(stock_ticker, start_date, end_date)
-        market_data = get_stock_data(market_ticker, start_date, end_date)
-        
-        # Verificar si se obtuvieron datos para ambos símbolos
-        if stock_data is None or market_data is None or stock_data.empty or market_data.empty:
-            st.error("No se pudieron obtener datos para uno o ambos símbolos bursátiles o los datos están vacíos.")
-            st.stop()
+    if st.button('Calcular'):
+        try:
+            # Obtener datos de acciones y del mercado
+            stock_data = get_stock_data(stock_ticker, start_date, end_date)
+            market_data = get_stock_data(market_ticker, start_date, end_date)
+            
+            # Verificar si se obtuvieron datos para ambos símbolos
+            if stock_data is None or market_data is None or stock_data.empty or market_data.empty:
+                st.error("No se pudieron obtener datos para uno o ambos símbolos bursátiles o los datos están vacíos.")
+                st.stop()
 
-        # Calcular retornos
-        stock_data['Returns'] = stock_data['Close'].pct_change().dropna()
-        market_data['Returns'] = market_data['Close'].pct_change().dropna()
+            # Calcular retornos
+            stock_data['Returns'] = stock_data['Close'].pct_change().dropna()
+            market_data['Returns'] = market_data['Close'].pct_change().dropna()
+            
+            # Calcular métricas de riesgo
+            var = calculate_var(stock_data['Returns'])
+            cvar = calculate_cvar(stock_data['Returns'])
+            volatility = calculate_volatility(stock_data['Returns'])
+            drawdown = calculate_drawdown(stock_data['Returns'])
+            beta = calculate_beta(stock_data['Returns'], market_data['Returns'])
+            sharpe_ratio = calculate_sharpe_ratio(stock_data['Returns'])
+            sortino_ratio = calculate_sortino_ratio(stock_data['Returns'])
+            variance = calculate_variance(stock_data['Returns'])
+            kurtosis = calculate_kurtosis(stock_data['Returns'])
+            skewness = calculate_skewness(stock_data['Returns'])
+            
+            # Mostrar resultados
+            st.write(f"Valor en Riesgo (VaR): {var:.2%}")
+            st.write(f"Valor en Riesgo Condicional (CVaR): {cvar:.2%}")
+            st.write(f"Volatilidad: {volatility:.2%}")
+            st.write(f"Drawdown Máximo: {drawdown.min():.2%}")
+            st.write(f"Beta: {beta:.2f}")
+            st.write(f"Ratio Sharpe: {sharpe_ratio:.2f}")
+            st.write(f"Ratio Sortino: {sortino_ratio:.2f}")
+            st.write(f"Varianza: {variance:.2%}")
+            st.write(f"Kurtosis: {kurtosis:.2f}")
+            st.write(f"Sesgo: {skewness:.2f}")
+            
+            # Mostrar gráficos
+            st.line_chart(drawdown, use_container_width=True)
+            plot_metrics(stock_data['Returns'], market_data['Returns'])
         
-        # Calcular métricas de riesgo
-        var = calculate_var(stock_data['Returns'])
-        cvar = calculate_cvar(stock_data['Returns'])
-        volatility = calculate_volatility(stock_data['Returns'])
-        drawdown = calculate_drawdown(stock_data['Returns'])
-        beta = calculate_beta(stock_data['Returns'], market_data['Returns'])
-        sharpe_ratio = calculate_sharpe_ratio(stock_data['Returns'])
-        sortino_ratio = calculate_sortino_ratio(stock_data['Returns'])
-        variance = calculate_variance(stock_data['Returns'])
-        kurtosis = calculate_kurtosis(stock_data['Returns'])
-        skewness = calculate_skewness(stock_data['Returns'])
-        
-        # Mostrar resultados
-        st.write(f"Valor en Riesgo (VaR): {var:.2%}")
-        st.write(f"Valor en Riesgo Condicional (CVaR): {cvar:.2%}")
-        st.write(f"Volatilidad: {volatility:.2%}")
-        st.write(f"Drawdown Máximo: {drawdown.min():.2%}")
-        st.write(f"Beta: {beta:.2f}")
-        st.write(f"Ratio Sharpe: {sharpe_ratio:.2f}")
-        st.write(f"Ratio Sortino: {sortino_ratio:.2f}")
-        st.write(f"Varianza: {variance:.2%}")
-        st.write(f"Kurtosis: {kurtosis:.2f}")
-        st.write(f"Sesgo: {skewness:.2f}")
-        
-        # Mostrar gráficos
-        st.line_chart(drawdown, use_container_width=True)
-        plot_metrics(stock_data['Returns'], market_data['Returns'])
-    
-    except Exception as e:
-        st.error(f"Ocurrió un error: {e}")
+        except Exception as e:
+            st.error(f"Ocurrió un error: {e}. Traceback: {traceback.format_exc()}")
 
 
 

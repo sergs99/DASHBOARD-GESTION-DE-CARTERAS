@@ -11,29 +11,29 @@ import plotly.graph_objs as go
 from datetime import datetime, timedelta
 def main():
     # Título de la aplicación
-    st.title("Herramientas de Análisis Financiero")
-    
-    # Menú desplegable
-    menu = st.sidebar.selectbox(
-        "Selecciona una opción",
-        ["Análisis de Acciones", "Gestión de Carteras"]
-    )
-    # Función para obtener datos de la acción
+st.title("Herramientas de Análisis Financiero")
+
+# Menú principal
+menu = st.sidebar.selectbox(
+    "Seleccione una categoría",
+    ("Acciones", "Gestión de Carteras")
+)
+
+# Función para obtener datos de la acción
 def get_stock_data(ticker, start_date, end_date):
     stock = yf.Ticker(ticker)
     hist = stock.history(start=start_date, end=end_date)
     info = stock.info
     return hist, info
 
+# Submenú en la categoría "Acciones"
+if menu == "Acciones":
+    submenu_acciones = st.sidebar.selectbox(
+        "Seleccione un análisis para acciones",
+        ("Análisis Técnico", "Análisis Fundamental", "Riesgo")
+    )
     
-    if menu == "Análisis de Acciones":
-        # Submenú para Análisis de Acciones
-        submenu = st.sidebar.selectbox(
-            "Selecciona un tipo de análisis",
-            ["Análisis Técnico", "Análisis Fundamental", "Análisis de Riesgo"]
-        )
-        
-        if submenu_acciones == "Análisis Técnico":
+    if submenu_acciones == "Análisis Técnico":
         st.subheader("Análisis Técnico")
         
         # Entradas de usuario

@@ -290,8 +290,9 @@ def handle_stock_analysis():
             st.error(f"Ocurrió un error: {e}")
 
  
-        if submenu_acciones == "Análisis Fundamental":
+           elif submenu == "Análisis Fundamental":
         st.subheader("Análisis Fundamental")
+        
  # Entradas de usuario
         ticker = st.text_input("Símbolo bursátil:", value='AAPL')
         start_date = st.date_input('Fecha de inicio', (datetime.today() - timedelta(days=252)).date())

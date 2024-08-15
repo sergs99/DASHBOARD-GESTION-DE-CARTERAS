@@ -358,23 +358,19 @@ if menu == "Acciones":
         # Aquí puedes agregar el análisis de riesgo y el resto de la implementación.
         pass
     
-     if menu == "Gestión de Carteras":
-    submenu_gestioncarteras = st.sidebar.selectbox(
-        "Selecciona un tipo de gestión de cartera",
-        ["Optimización de Carteras", "Análisis de Cartera"]
+ elif menu == "Gestión de carteras":
+    st.header("Gestión de Carteras")
+    portfolio_option = st.sidebar.selectbox(
+        "Selecciona una opción de gestión de carteras",
+        ["Análisis de cartera", "Optimización de cartera"]
     )
     
-    if submenu == "Optimización de Carteras":
-        st.subheader("Optimización de Carteras")
-        st.write("Aquí va el contenido para la optimización de carteras.")
-        # Aquí puedes añadir la lógica para la optimización de carteras
-        # Por ejemplo, podrías implementar la optimización del portafolio usando técnicas como la frontera eficiente
-        # También podrías añadir gráficos y tablas relacionados con la optimización
-        
-    elif submenu == "Análisis de Cartera":
+    if portfolio_option == "Análisis de cartera":
         st.subheader("Análisis de Cartera")
-        st.write("Aquí va el contenido para el análisis de carteras.")
-        # Aquí puedes añadir la lógica para el análisis de la cartera
-        # Podrías mostrar estadísticas, gráficos, y métricas como el rendimiento y el riesgo de la cartera
-        # También podrías añadir visualizaciones sobre la composición de la cartera
+        st.write("Aquí va el contenido para el análisis de cartera.")
+        # Agrega tu código y widgets aquí
 
+    elif portfolio_option == "Optimización de cartera":
+        st.subheader("Optimización de Cartera")
+        st.write("Aquí va el contenido para la optimización de cartera.")
+        # Agrega tu código y widgets aquí

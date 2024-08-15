@@ -355,7 +355,7 @@ if submenu_acciones == "Análisis Fundamental":
     if submenu_acciones == "Riesgo":
         st.subheader("Análisis de Riesgo")
         # Aquí puedes agregar el análisis de riesgo y el resto de la implementación.
-        pass
+    
 
 
 # Función para validar los pesos

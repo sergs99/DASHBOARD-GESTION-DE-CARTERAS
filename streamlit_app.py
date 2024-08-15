@@ -477,7 +477,7 @@ def stress_test(log_returns, weights):
     }
 
  # Si la opción seleccionada es "Gestión de Carteras"
-elif menu == "Gestión de Carteras":
+if menu == "Gestión de Carteras":
     st.subheader("Gestión de Carteras")
     portfolio_option = st.sidebar.selectbox(
         "Selecciona una opción de gestión de carteras",
